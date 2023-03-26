@@ -1,6 +1,42 @@
 import { NextPage } from 'next';
+import { Iamport, RequestPayParams, RequestPayResponse } from '../components/IFcPayment';
+
+declare global {
+  interface Window {
+    IMP?: Iamport
+  }
+}
 
 const Footer: NextPage = () => {
+  const onPayment = () => {
+    window.IMP?.init('imp23735785');
+    const amount: number = 0
+    const data: RequestPayParams = {
+      // pg: 'A010002002',
+      pg: `danal_tpay.${9810030929}`,
+      pay_method: 'card',
+      merchant_uid: `mid_${new Date().getTime()}`,
+      customer_uid : 'store-cf0756a6-4516-4af1-b718-28cf9d6e07f8',
+      amount: amount,
+      name : '주문명:결제테스트',
+      buyer_email : 'test@portone.io',
+      buyer_name : '구매자이름',
+      buyer_tel : '010-1234-5678',
+      buyer_addr : '서울특별시 강남구 삼성동',
+      buyer_postcode : '123-456',
+    }
+    console.log(data, "  : data")
+    const callback = (response: RequestPayResponse) => {
+      const { success, merchant_uid, error_msg, imp_uid, error_code } = response
+      if (success) {
+        console.log(response)
+      } else {
+        console.log(response)
+      }
+    }
+    window.IMP?.request_pay(data, callback)
+  }
+
   return (
     <div className="w-full mt-[200px]">
       <div className="w-full h-fit bg-[#eeeffb] flex justify-center flex-col">
@@ -28,6 +64,9 @@ const Footer: NextPage = () => {
             <div className="w-5 h-5 bg-fb bg-transparent bg-no-repeat bg-center"></div>
             <div className="w-5 h-5 bg-insta bg-transparent bg-no-repeat bg-center"></div>
             <div className="w-5 h-5 bg-twitter bg-transparent bg-no-repeat bg-center"></div>
+            <button onClick={onPayment} className="w-[135px] h-[39px] mt-[2.5px] mr-[2.5px] mt- bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred">
+              Button
+            </button>
           </div>
         </div>
       </div>
