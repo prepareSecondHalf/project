@@ -58,7 +58,7 @@ const Login: NextPage = () => {
 
                     <div className="request_user">
                         <p style={requestUserText}>Forget your password?</p>
-                        <button style={signinBtn} id="signin-btn">Sign In</button>
+                        <button style={signinBtn} id="signin_btn">Sign In</button>
                         <p style={requestUserText}>Don't have an Account? Create account</p>
                     </div>
                 </div>
