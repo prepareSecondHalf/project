@@ -1,5 +1,6 @@
 import Footer from 'components/Footer';
 import Header from 'components/Header';
+import Reviewers from 'components/Main/Reviewers';
 import { NextPage } from 'next';
 
 const Home: NextPage = () => {
@@ -11,7 +12,7 @@ const Home: NextPage = () => {
           Best Reviewer List!!!
         </div>
         <div className="w-full h-[800px] bg-white text-center flex flex-col justify-center text-7xl">
-          SectionSection!!!!
+          <Reviewers />
         </div>
       </div>
       <Footer />
