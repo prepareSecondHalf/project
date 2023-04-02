@@ -1,6 +1,16 @@
+import { useState } from 'react';
 import { NextPage } from 'next';
+import Payment from './Payment';
+
+
 
 const Footer: NextPage = () => {
+  const [paymentShow, setPaymentShow] = useState(false);
+
+  const onPayment = () => {
+    setPaymentShow(true);
+  }
+
   return (
     <div className="w-full mt-[200px]">
       <div className="w-full h-fit bg-[#eeeffb] flex justify-center flex-col">
@@ -28,9 +38,13 @@ const Footer: NextPage = () => {
             <div className="w-5 h-5 bg-fb bg-transparent bg-no-repeat bg-center"></div>
             <div className="w-5 h-5 bg-insta bg-transparent bg-no-repeat bg-center"></div>
             <div className="w-5 h-5 bg-twitter bg-transparent bg-no-repeat bg-center"></div>
+            <button onClick={onPayment} className="w-[135px] h-[39px] mt-[2.5px] mr-[2.5px] mt- bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred">
+              Button
+            </button>
           </div>
         </div>
       </div>
+      { paymentShow && <Payment /> }
     </div>
   );
 };
