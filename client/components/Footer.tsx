@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NextPage } from 'next';
-import Payment from './Payment';
+import Payment from './Payment/Payment';
 
 
 
