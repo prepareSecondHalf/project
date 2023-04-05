@@ -111,12 +111,24 @@ const MyPageActiveHistory = Styled.div`
         font-size: 14px;
     }
 
-    & .category-item {
+    & .category-list {
         display: flex;
         flex: 1;
-        padding: 10px;
+        padding: 5px 10px 10px;
+        flex-direction: column;
+    }
+
+    & .category-list.no-data {
         align-items: center;
         justify-content: center;
+    }
+
+    & .category-list .category-item {
+        padding-block: 8px 5px;
+    }
+
+    & .category-list .category-item + .category-item {
+        border-top: 1px dotted;
     }
 `
 

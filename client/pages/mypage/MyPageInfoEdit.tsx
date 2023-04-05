@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NextPage } from "next";
 import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
-
+// 수정중.
 const MyPageInfo: NextPage = () => {
 
     const [userName, setUserName] = useState<string>('유저 이름')
