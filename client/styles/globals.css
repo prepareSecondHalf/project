@@ -14,14 +14,17 @@ a {
   text-decoration: none;
 }
 
-input[readOnly] {
+input[readOnly]:not([type="checkbox"]) {
   border: unset;
   margin: 0;
   padding-left: 0;
 }
 
-input[readOnly]:focus {
+input[readOnly]:not([type="checkbox"]):focus {
   border: unset;
+}
+  
+input[readOnly]:focus {  
   --tw-ring-offset-color: none;
 }
 

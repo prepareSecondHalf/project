@@ -12,24 +12,13 @@ declare global {
 
 const Payment: NextPage = () => {
 
-    // let iframe;
-    // let iDocument;
-
-    // if (typeof document !== "undefined") {
-    //     iframe = document.querySelector('.imp-dialog iframe') as HTMLIFrameElement;
-    //     iDocument = iframe.contentDocument;
-    // }
-
     useEffect(() => {
         window.IMP?.init('imp23735785');
-        // const amount: number = 0
         const amount: number = 1000
         const data: RequestPayParams = {
-            // pg: 'A010002002',
             pg: `danal_tpay.${9810030929}`,
             pay_method: 'card',
             merchant_uid: `mid_${new Date().getTime()}`,
-            // customer_uid : 'store-cf0756a6-4516-4af1-b718-28cf9d6e07f8',
             amount: amount,
             name : '주문명:결제테스트',
             buyer_email : 'test@portone.io',

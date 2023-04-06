@@ -4,9 +4,16 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import Payment from "components/Payment/Payment";
+import { Iamport, RequestPayParams, RequestPayResponse } from '../../interface/IFcPayment';
 
 import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInformation, IFcMyRequestHistory, IFcMyActivityHistory, IFcWishList } from 'interface/MyPage/IFcMyPageInfo';
+
+declare global {
+    interface Window {
+      IMP?: Iamport
+    }
+}
 
 const initialData: IFcMyInformation = {
     name: '윤제혁',
@@ -61,36 +68,69 @@ const MyPageInfo: NextPage = () => {
     const router = useRouter();
 
     useEffect(() => {
-        console.log(router)
+        // console.log(router)
     }, [router])
 
     const onPayment = () => {
-        console.log('payment')
+        window.IMP?.init('imp23735785');
+        const amount: number = 1000
+        const data: RequestPayParams = {
+            pg: `danal_tpay.${9810030929}`,
+            pay_method: 'card',
+            merchant_uid: `mid_${new Date().getTime()}`,
+            amount: amount,
+            name : '주문명:결제테스트',
+            buyer_email : 'test@portone.io',
+            buyer_name : '구매자이름',
+            buyer_tel : '010-1234-5678',
+            buyer_addr : '서울특별시 강남구 삼성동',
+            buyer_postcode : '123-456',
+        }
+        console.log(data, "  : data")
+
+        const callback = (response: RequestPayResponse) => {
+            const { success, merchant_uid, error_msg, imp_uid, error_code } = response
+            if (success) {
+                console.log(response)
+            } else {
+                console.log(response)
+            }
+        }
+        window.IMP?.request_pay(data, callback)
     }
 
     return (
         <>
-            <div className="profile rounded-full"></div>
-            <p className="user-name">{myInfo.nick}
-                <span>{myInfo.level}</span>
-            </p>
+            <div className="profile-base">
+                <div className="profile-box">
+                    <div className="profile rounded-full">
+
+                    </div>
+                    <p className="user-name">
+                        {myInfo.nick}
+                        <span>{myInfo.level}</span>
+                    </p>
+                </div>
+                <div className="user-info grid grid-cols-2 gap-x-16 gap-y-8">
+                    <div>
+                        <span className="field-label">이름</span>
+                        <input type="text" readOnly value={myInfo.name}/>
+                    </div>
+                    <div>
+                        <span className="field-label">이메일</span>
+                        <input type="text" readOnly value={myInfo.email} />
+                    </div>
+                    <div>
+                        <span className="field-label">전화번호</span>
+                        <input type="text" className="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500" readOnly value={myInfo.phoneNumber} />
+                    </div>
+                    <div>
+                        <span className="field-label">리뷰어 신청 여부</span>
+                        <input type="checkbox" readOnly checked={myInfo.reviewer} />
+                    </div>
+                </div>
+            </div>
             <div className="user-info grid grid-cols-2 gap-x-16 gap-y-8">
-                <div>
-                    <span className="field-label">이름</span>
-                    <input type="text" readOnly value={myInfo.name}/>
-                </div>
-                <div>
-                    <span className="field-label">이메일</span>
-                    <input type="text" readOnly value={myInfo.email} />
-                </div>
-                <div>
-                    <span className="field-label">전화번호</span>
-                    <input type="text" className="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500" readOnly value={myInfo.phoneNumber} />
-                </div>
-                <div>
-                    <span className="field-label">리뷰어 신청 여부</span>
-                    <input type="checkbox" readOnly checked={myInfo.reviewer} />
-                </div>
                 <MyPageActiveHistory className="rounded-md">
                     <p className="category-title">리뷰 신청내역</p>
                     <div className={'category-list ' + (userRequestReview.length > 0?'':'no-data')}>

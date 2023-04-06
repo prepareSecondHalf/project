@@ -2,20 +2,15 @@ import { useEffect } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 
-const Cash: NextPage = () => {
+import { Container, MyPageWrapper, MyPageContent } from 'styles/myPage/myPageStyled';
+import SideBar from 'components/MyPage/MyPageSideBar';
+import CashHistory from "components/MyPage/CashChargeHistory";
 
-    const router = useRouter();
-
-    useEffect(() => {
-        console.log(router);
-    }, [router])
+const CashUsageHistory: NextPage = () => {
 
     return (
         <>
             <div className="w-full">
-                <div>
-                    <h2 className="text-2xl font-semibold leading-tight">Cash</h2>
-                </div>
                 <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
                     <div
                         className="inline-block min-w-full shadow-md rounded-lg overflow-hidden"
@@ -288,4 +283,4 @@ const Cash: NextPage = () => {
     )
 }
 
-export default Cash;
+export default CashUsageHistory;

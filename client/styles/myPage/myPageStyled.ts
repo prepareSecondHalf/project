@@ -51,7 +51,15 @@ const MyPageContent = Styled.div`
         width: 120px;
         height: 120px;
         background-color: #E2E2E2;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
+    }
+
+    & .profile-base {
+        display: flex;
+    }
+
+    & .profile-box {
+        margin-right: 50px;
     }
 
     & .user-info input:not([type="checkbox"]) {
