@@ -1,8 +1,27 @@
+/** hooks */
+import { useEffect } from 'react';
+
 /**components */
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 
+/** libs */
+import axios from 'axios';
+
 const ReviewerList = () => {
+  useEffect(() => {
+    const getPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/post/');
+        console.log('i got a reponse!', response);
+      } catch (error) {
+        console.log('error occured!!');
+        console.dir(error);
+      }
+    };
+    getPosts();
+  }, []);
+
   return (
     <>
       <Header />
