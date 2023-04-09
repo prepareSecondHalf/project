@@ -4,8 +4,8 @@ import Link from 'next/link';
 const menus = [
   {
     id: 0,
-    path: '뭘',
-    content: '뭘',
+    path: 'mypage',
+    content: '마이페이지',
   },
   {
     id: 1,
