@@ -28,8 +28,8 @@ const Payment: NextPage = () => {
             buyer_postcode : '123-456',
         }
         console.log(data, "  : data")
-        let iframe = document.querySelector('iframe') as HTMLIFrameElement;
-        console.log(iframe, " : iframe")
+        // let iframe = document.querySelector('iframe') as HTMLIFrameElement;
+        // console.log(iframe, " : iframe")
         // let iDocument = iframe.contentDocument;
         // console.log(iDocument, " : iDocument")
         // if(iDocument) {

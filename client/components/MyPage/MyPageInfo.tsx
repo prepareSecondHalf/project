@@ -1,13 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
+
+import { FixedSizeList } from 'react-window';
+import { renderToString } from 'react-dom/server';
 
 import Payment from "components/Payment/Payment";
 import { Iamport, RequestPayParams, RequestPayResponse } from '../../interface/IFcPayment';
 
 import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInformation, IFcMyRequestHistory, IFcMyActivityHistory, IFcWishList } from 'interface/MyPage/IFcMyPageInfo';
+import Charge from "pages/payment/charge";
 
 declare global {
     interface Window {
@@ -56,6 +60,10 @@ const initialWLData: IFcWishList[] = [
     
 ];
 
+interface PaymentProps {
+    index: number;
+    style: React.CSSProperties;
+  }
 
 const MyPageInfo: NextPage = () => {
 
@@ -66,19 +74,41 @@ const MyPageInfo: NextPage = () => {
     const [userWishList, setUseWishList] = useState<IFcWishList[]>(initialWLData);
 
     const router = useRouter();
-
     useEffect(() => {
-        // console.log(router)
-    }, [router])
+        window.addEventListener('message', (e: MessageEvent) => {
+            const { data } = e;
+            
+            console.log(data, " : data get");
+            initialData.cookie = data.paid_amount;
+            setMyInfo(initialData);
+        })
+        
+    }, [])
+
+    const openPaymentWindow = async (params: RequestPayParams) => {
+        const { IMP } = window;
+        IMP?.init('imp23735785');
+      
+        const { pg, pay_method, merchant_uid, amount, name, buyer_email, buyer_name, buyer_tel, buyer_addr, buyer_postcode } = params;
+        const url = `/payment/charge?merchant_uid=${merchant_uid}&amount=${amount}&buyer_name=${buyer_name}&buyer_tel=${buyer_tel}`;
+        // const list = (
+        //     <FixedSizeList height={800} width={900} itemSize={100} itemCount={10}>
+        //         {({ index, style }: PaymentProps) => <Charge />}
+        //     </FixedSizeList>
+        // )
+        // const html = renderToString(list)
+        window.open(url, '_blank', 'width=900, height=800');
+        // window.open(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`, '_blank');
+        // const containerRef = useRef<HTMLDivElement | null>(null);
+    };
 
     const onPayment = () => {
-        window.IMP?.init('imp23735785');
-        const amount: number = 1000
+        // window.open('/payment/charge', '포인트 충전', 'width=500, height=500');
         const data: RequestPayParams = {
             pg: `danal_tpay.${9810030929}`,
             pay_method: 'card',
             merchant_uid: `mid_${new Date().getTime()}`,
-            amount: amount,
+            amount: 1000,
             name : '주문명:결제테스트',
             buyer_email : 'test@portone.io',
             buyer_name : '구매자이름',
@@ -86,17 +116,8 @@ const MyPageInfo: NextPage = () => {
             buyer_addr : '서울특별시 강남구 삼성동',
             buyer_postcode : '123-456',
         }
-        console.log(data, "  : data")
 
-        const callback = (response: RequestPayResponse) => {
-            const { success, merchant_uid, error_msg, imp_uid, error_code } = response
-            if (success) {
-                console.log(response)
-            } else {
-                console.log(response)
-            }
-        }
-        window.IMP?.request_pay(data, callback)
+        openPaymentWindow(data);
     }
 
     return (
@@ -186,6 +207,7 @@ const MyPageInfo: NextPage = () => {
                     <div className="category-item" data-category="cookie">{myInfo.cookie}</div>
                 </MyPageActiveHistory>
             </div>
+            {/* <Payment /> */}
         </>
     )
 }
