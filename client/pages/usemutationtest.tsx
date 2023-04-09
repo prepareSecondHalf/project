@@ -8,6 +8,7 @@ import { Apis } from 'utils/api';
 const ReactQueryTest: NextPage = () => {
   const [data, setData] = useState('');
 
+  // post, put, delete
   const { error, status, isLoading } = useMutation(
     () => Apis.post('/post', 'Yun'),
     {

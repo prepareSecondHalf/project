@@ -1,13 +1,14 @@
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { NextPage } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { Apis } from 'utils/api';
 
 const ReactQueryTest: NextPage = () => {
   const [data, setData] = useState('');
 
+  // get > useQuery
   const { error, status, isLoading } = useQuery(
     'data',
     () => Apis.get('/hello'),
