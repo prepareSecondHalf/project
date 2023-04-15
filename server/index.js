@@ -5,6 +5,7 @@ const hpp = require('hpp');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
+const http = require('http');
 
 const app = express();
 
@@ -49,6 +50,11 @@ mongoose
 
 app.use('/api/user', require('./routes/api/user'));
 
-app.listen(port, () => {
+const server = http.createServer(app);
+
+const webSocket = require('./middleware/socket');
+webSocket(server);
+
+server.listen(port, () => {
   console.log(`Server started on ${PORT} port`);
 });
