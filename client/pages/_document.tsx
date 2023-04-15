@@ -17,5 +17,5 @@ export default function Document() {
         <Footer />
       </body>
     </Html>
-  )
+  );
 }
