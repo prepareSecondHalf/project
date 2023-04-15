@@ -1,5 +1,5 @@
 /** hooks */
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 /**components */
 import Header from 'components/Header';
@@ -14,40 +14,53 @@ interface IPost {
   title: String;
   contents: String;
   register_date: Date;
-  lang: String[];
+  langs: String[];
   per_minute: Number;
   comments?: Object[];
   creator: String;
 }
+const generateId = (): string => {
+  return Math.random().toString();
+};
 
 const ReviewerList = () => {
   const [title, setTitle] = useState('');
   const [contents, setContents] = useState('');
-  const [language, setLanguage] = useState('');
+  const [lang, setLang] = useState('');
+  const [langs, setLangs] = useState<String[]>([]);
   const [pricePerMin, setPricePerMin] = useState(0);
 
-  const onChangeTitle = () => {
-    console.log('아직 아무것도 안 함');
+  const onChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
   };
-  const onChangeContents = () => {
-    console.log('아직 아무것도 안 함');
+  const onChangeContents = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContents(event.target.value);
   };
-  const onChangeLanguage = () => {
-    console.log('아직 아무것도 안 함');
+  const onChangeLang = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLang(event.target.value);
   };
-  const onChangePricePerMin = () => {
-    console.log('아직 아무것도 안 함');
+  const onAddLang = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
+    if (event.type !== 'click') {
+      event.preventDefault();
+      if ((event as React.KeyboardEvent<HTMLInputElement>).key !== 'Enter') return;
+    }
+    if (!lang) return;
+    setLangs((prevLangs) => [...prevLangs.filter((prevLang) => prevLang !== lang), lang]);
+    setLang('');
+  };
+  const onChangePricePerMin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPricePerMin(+event.target.value);
   };
 
   const onSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const params: IPost = {
-      id: '123',
-      title: '되니?',
-      contents: '테스트하려고 만들었읍니다',
+      id: generateId(),
+      title,
+      contents,
       register_date: new Date(),
-      lang: ['trash languages like', 'LWC', 'Aura'],
-      per_minute: 100,
+      lang: langs,
+      per_minute: pricePerMin,
       creator: 'ksg',
     };
     try {
@@ -62,27 +75,83 @@ const ReviewerList = () => {
   return (
     <>
       <Header />
-      <main className="w-full h-fit px-96 bg-[#ffffff] font-josefin">
-        <section className="flex justify-between items-center py-20 text-[20px]">
-          <form className="w-full px-20 py-20 bg-[#ebdefc]" onSubmit={onSubmitForm}>
-            <h1 className="text-[40px] font-josefin font-bold">create a post</h1>
-            <div>
-              <label htmlFor="title">title</label>
-              <input type="text" id="title" value={title} onChange={onChangeTitle} />
+      <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
+        <h1>Create a post</h1>
+      </section>
+      <main className="w-full h-fit px-96 bg-[#ffffff]">
+        <section className="flex justify-between items-center py-20 text-[#8A8FB9]">
+          <form className="w-full px-20 py-20 bg-[#EEEFFB]" onSubmit={onSubmitForm}>
+            <h1 className="text-[40px] font-bold mb-20">글을 올려 보아라</h1>
+            <label htmlFor="title">
+              <input
+                type="text"
+                id="title"
+                className="w-full h-16 mb-8 rounded border-white outline-none text-lg"
+                placeholder="제목 입력"
+                value={title}
+                onChange={onChangeTitle}
+              />
+            </label>
+            <label htmlFor="contents">
+              <textarea
+                id="contents"
+                className="w-full h-96 mb-8 rounded border-white outline-none resize-none text-lg"
+                placeholder="내용 입력"
+                value={contents}
+                onChange={onChangeContents}
+              />
+            </label>
+            <div className="w-full flex gap-4">
+              <label htmlFor="lang" className="w-4/12">
+                <input
+                  type="text"
+                  id="lang"
+                  className="w-full h-16 mb-8 rounded border-white outline-none text-lg"
+                  placeholder="언어를 추가하세요"
+                  value={lang}
+                  onChange={onChangeLang}
+                  onKeyUp={onAddLang}
+                />
+              </label>
+              <button
+                type="button"
+                className="w-fit h-16 px-12 bg-[#FB2E86] text-[#FFFFFF] text-xl rounded font-josefin"
+                onClick={onAddLang}
+              >
+                add
+              </button>
+              <label htmlFor="pricePerMin" className="w-6/12 relative">
+                <input
+                  type="number"
+                  step="100"
+                  id="pricePerMin"
+                  className="w-full h-16 mb-8 rounded border-white outline-none text-lg"
+                  placeholder="가격"
+                  value={pricePerMin}
+                  onChange={onChangePricePerMin}
+                />
+                <span className="ml-2 text-lg absolute right-12 top-1/3 -translate-y-1/2">원</span>
+              </label>
             </div>
-            <div>
-              <label htmlFor="contents">contents</label>
-              <textarea id="contents" value={contents} onChange={onChangeContents} />
-            </div>
-            <div>
-              <label htmlFor="language">language</label>
-              <input type="text" id="language" value={language} onChange={onChangeLanguage} />
-            </div>
-            <div>
-              <label htmlFor="pricePerMin">pricePerMin</label>
-              <input type="number" id="pricePerMin" value={pricePerMin} onChange={onChangePricePerMin} />
-            </div>
-            <button type="submit">submit!</button>
+            <ul className="h-16 flex flex-wrap gap-x-4">
+              {langs.map((lang) => {
+                return (
+                  <li
+                    className="w-fit h-2/5 flex items-center px-4 bg-[#1BE982] text-[#EEEFFB] text-sm rounded border-white"
+                    key={lang + generateId()}
+                  >
+                    {lang}
+                  </li>
+                );
+              })}
+            </ul>
+
+            <button
+              type="submit"
+              className="w-fit h-16 px-12 block float-right	bg-[#FB2E86] text-[#FFFFFF] rounded text-xl font-josefin"
+            >
+              등록하기
+            </button>
           </form>
         </section>
       </main>

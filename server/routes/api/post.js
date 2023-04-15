@@ -28,8 +28,8 @@ router.get('/:id', async (req, res) => {
 
 // create a post
 router.post('/', async (req, res) => {
-  console.log('getting req', req);
-  const newPost = new Post(req.params);
+  console.log('getting req', req.body);
+  const newPost = new Post(req.body);
   try {
     await newPost.save();
     return res.status(200).json({ newPost });
