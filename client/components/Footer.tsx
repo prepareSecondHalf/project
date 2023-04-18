@@ -1,6 +1,7 @@
 import { NextPage } from 'next';
 
 const Footer: NextPage = () => {
+
   return (
     <div className="w-full mt-[200px]">
       <div className="w-full h-fit bg-[#eeeffb] flex justify-center flex-col">

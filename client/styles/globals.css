@@ -14,6 +14,20 @@ a {
   text-decoration: none;
 }
 
+input[readOnly]:not([type="checkbox"]) {
+  border: unset;
+  margin: 0;
+  padding-left: 0;
+}
+
+input[readOnly]:not([type="checkbox"]):focus {
+  border: unset;
+}
+  
+input[readOnly]:focus {  
+  --tw-ring-offset-color: none;
+}
+
 * {
   box-sizing: border-box;
   color: #0d0e43;
