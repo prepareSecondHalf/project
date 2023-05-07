@@ -1,12 +1,46 @@
-/**components */
-import Header from 'components/Header';
-import Footer from 'components/Footer';
+/** hooks */
+import { Key, useEffect, useState } from 'react';
+
+/** libs */
+import axios from 'axios';
+
+/** interface */
+interface IPost {
+  _id: String;
+  title: String;
+  contents: String;
+  register_date: Date;
+  lang: String[];
+  per_minute: Number;
+  comments?: Object[];
+  creator: String;
+}
 
 const ReviewerList = () => {
+  const [posts, setPosts] = useState<IPost[]>([]);
+
+  useEffect(() => {
+    const getPosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/post/');
+        console.log('i got a reponse!', response);
+        setPosts(
+          response?.data?.posts.sort((a: Date, b: Date) => {
+            return +b - +a;
+          })
+        );
+        console.log('sorted post', posts);
+      } catch (error) {
+        console.log('error occured!!');
+        console.dir(error);
+      }
+    };
+    getPosts();
+  }, []);
+
   return (
     <>
-      <Header />
-      <section className="w-full px-96 py-20 bg-[#ebdefc] text-[40px] font-josefin font-bold">
+      <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
         <h1>Banner of the List</h1>
       </section>
       <main className="w-full h-fit px-96 bg-[#ffffff] font-josefin">
@@ -19,24 +53,28 @@ const ReviewerList = () => {
           </div>
         </section>
         <section>
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => {
+          {posts.map((post) => {
             return (
-              <div key={item} className="w-full flex mb-16">
-                <div className="w-72 h-60 bg-[#ebdefc]">Image of the {item}th Reviewer</div>
+              <div key={post._id as Key} className="w-full flex mb-16">
+                <div className="w-72 h-60 bg-[#EEEFFB]">Image of the Reviewer</div>
                 <div className="p-8">
-                  <div>Name of the {item}th Reviewer</div>
+                  <div>{post.creator}</div>
                   <div className="flex gap-x-4">
-                    <div>Price</div>
-                    <div>Rate</div>
+                    <div>Price: {`${post.per_minute}원`}</div>
+                    <div>
+                      Language:
+                      {post.lang?.map((lang, idx) => {
+                        return <span key={`${lang}${idx}`}>{idx === 0 ? lang : `, ${lang}`}</span>;
+                      })}
+                    </div>
                   </div>
-                  <div>Description of the {item}th Reviewer</div>
+                  <div>{post.contents}</div>
                 </div>
               </div>
             );
           })}
         </section>
       </main>
-      <Footer />
     </>
   );
 };

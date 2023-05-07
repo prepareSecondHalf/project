@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: true,
     credentials: true,
-  }),
+  })
 );
 
 app.use(morgan('dev'));
@@ -49,6 +49,7 @@ mongoose
   });
 
 app.use('/api/user', require('./routes/api/user'));
+app.use('/api/post', require('./routes/api/post'));
 app.use('/api/user-tmp', require('./routes/api/user-tmp'));
 
 const server = http.createServer(app);
