@@ -18,6 +18,7 @@ interface IPost {
 
 const ReviewerList = () => {
   const [posts, setPosts] = useState<IPost[]>([]);
+
   useEffect(() => {
     const getPosts = async () => {
       try {
@@ -35,7 +36,7 @@ const ReviewerList = () => {
       }
     };
     getPosts();
-  }, [posts]);
+  }, []);
 
   return (
     <>
