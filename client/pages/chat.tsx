@@ -183,29 +183,34 @@ const dummyChatters = [
 
 const Chat: NextPage = () => {
   const [chat, setChat] = useState<IMessage[]>([]);
-  const [user, setUser] = useState('정환');
+  const [user, setUser] = useState('645ffc1ce7c43d0391830119');
   const msg = useInput('');
 
   useEffect((): any => {
     const socketClient = io('http://localhost:8080', {
-      path: '/routes/api/socketio',
+      path: '/api/chat',
     });
-
     socketClient.on('connect', () => {
       console.log('SOCKET CONNECTED:::', socketClient.id);
-    });
 
-    socketClient.on('message', (message: IMessage) => {
-      chat.push(message);
-      setChat([...chat]);
+      socketClient.emit('setChat', { userId: user });
     });
 
     if (socketClient) return () => socketClient.disconnect();
-  }, [chat]);
+  }, [user]);
 
   const sendMsg = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const socketClient = io('http://localhost:8080', {
+      path: '/api/chat',
+    });
+
+    socketClient.emit('sendMsg', msg.value);
+
+    socketClient.on('sendMsg', (res) => {
+      console.log('res:::', res);
+    });
     // if (msg.value) {
     //   const message: IMessage = {
     //     user: user,
@@ -224,7 +229,7 @@ const Chat: NextPage = () => {
       <div className="w-[1170px] h-fit my-0 mx-auto mt-32 flex border border-[#e1e1e4]">
         <div className="flex-1 h-[500px] overflow-y-auto bg-[#F5F6FA] relative">
           {dummyChats
-            .filter((item) => item.expert === user)[0]
+            .filter((item) => item.expert === '정환')[0]
             .msg.map((item) => {
               return (
                 <div key={item.id} className="w-full h-fit p-4">

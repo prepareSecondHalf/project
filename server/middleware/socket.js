@@ -1,8 +1,10 @@
 const SocketIO = require('socket.io');
+const { Chat } = require('../models/chat');
+const { ChatRoom } = require('../models/chatRoom');
 
 module.exports = (server) => {
   const io = SocketIO(server, {
-    path: '/routes/api/socketio',
+    path: '/api/chat',
     cors: { origin: '*', methods: ['GET', 'POST'] },
   });
 
@@ -14,7 +16,26 @@ module.exports = (server) => {
     const req = socket.request;
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    console.log('new Connection:::', ip, socket.id);
+    socket.on('setChat', (info) => {
+      ChatRoom.findOne({ roomId: socket.id }).then((room) => {
+        if (room) console.log(`${socket.id} Room Connected`);
+        else {
+          let users = [];
+          users.push(info.userId);
+
+          const newRoom = new ChatRoom({
+            roomId: socket.id,
+            owner: info.userId,
+            users,
+          });
+          newRoom.save();
+
+          console.log('new Connection:::', ip, socket.id);
+        }
+      });
+
+      io.emit('setChat', info);
+    });
 
     socket.on('disconnect', () => {
       socket.leave(userId);
@@ -30,23 +51,31 @@ module.exports = (server) => {
       console.error(err);
     });
 
-    socket.on('toMessage', (obj) => {
-      if (obj.toUser) {
-        io.to(obj.toSocketId).emit('fromMessage', obj);
-        io.to(socket.id).emit('fromMessage', obj);
-      } else {
-        io.emit('fromMessage', obj);
-      }
-    });
+    socket.on('sendMsg', (info) => {
+      console.log('socketId:::', socket.id);
+      const newChat = new Chat({
+        roomId: socket.id,
+        user: info.userId,
+        message: info.msg,
+      });
+      newChat.save();
 
-    socket.on('joinChat', (info) => {
-      userId = info.name;
-      info.socketId = socket.id;
-      userList.push(info);
+      ChatRoom.findOneAndUpdate(
+        { roomId: socket.id },
+        {
+          $push: {
+            chats: newChat._id,
+          },
+        },
+      )
+        .then(() => {
+          res.status(200).json({ success: true });
+        })
+        .catch((e) => {
+          res.status(400).json({ success: false });
+        });
 
-      socket.join(info.name);
-
-      io.emit('getUserList', userList);
+      io.emit('sendMsg', info);
     });
   });
 };
