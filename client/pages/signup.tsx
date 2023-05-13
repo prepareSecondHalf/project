@@ -46,9 +46,13 @@ const Login: NextPage = () => {
                         <p style={subTitleStyle}>Please signup using personal account detail below</p>
                     </div>
                     
-                    <div className="id_wrapper">
+                    {/* <div className="id_wrapper">
                         <label htmlFor="id"></label>
                         <input style={accountInput} type="text" placeholder="4~20자리 / 영문, 숫자, 특수문자 '_' 사용가능" id="id" />
+                    </div> */}
+                    <div className="email_wrapper">
+                        <label htmlFor="email"></label>
+                        <input style={accountInput} type="email" placeholder='email@reviewer.co.kr' id="email" />
                     </div>
 
                     <div className="password_wrapper">
@@ -69,11 +73,6 @@ const Login: NextPage = () => {
                     <div className="phone_number_wrapper">
                         <label htmlFor="phone_number"></label>
                         <input style={accountInput} type="number" placeholder="'-' 빼고 숫자만 입력"  id="phone_number" />
-                    </div>
-                    
-                    <div className="email_wrapper">
-                        <label htmlFor="email"></label>
-                        <input style={accountInput} type="email" placeholder='email@reviewer.co.kr' id="email" />
                     </div>
                     
                     <div className="request_user">
