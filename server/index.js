@@ -115,7 +115,8 @@ app.get('/api/user/auth', auth, (req, res) => {
     role: req.user.role
   })
 })
-app.get('/api/user/logout', auth, async (req, res) => {
+app.post('/api/user/logout', auth, async (req, res) => {
+  console.log('check@@@@@@@@@@@@@@@@@')
   await User.findOneAndUpdate({ _id: req.user._id }, { token: "" })
   // await User.findOneAndUpdate({ email: req.user.email }, { token: "" })
   .then((user) => {

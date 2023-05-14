@@ -40,9 +40,9 @@ const Login: NextPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggedOut, setIsLoggedOut] = useState(true);
 
-  const handleLogout = (e: BaseSyntheticEvent) => {
-    // axios.get("/api/user/logout")
-    axios.get("/")
+  const handleLogout = () => {
+    axios.post("http://localhost:8080/api/user/logout")
+    // axios.get("/")
     .then((res) => {
       console.log('로그아웃 성공', res);
       setIsLoggedIn(false);
