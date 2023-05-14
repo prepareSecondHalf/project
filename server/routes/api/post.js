@@ -7,7 +7,6 @@ const router = express.Router();
 router.get('/', async (_, res) => {
   try {
     const posts = await Post.find({});
-    posts.push({ id: 'testing!' });
     return res.status(200).json({ posts });
   } catch (error) {
     console.log('error occured when getting posts');
