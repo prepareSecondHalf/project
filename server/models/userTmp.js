@@ -61,7 +61,7 @@ const UserTmpSchema = new mongoose.Schema({
     required: true,
     default: 'https://dummyimage.com/600x400/000000/fff.png', // 변경할거
   },
-  // chat...은 뭐여 저거
+  chatRoom: { type: mongoose.Schema.Types.ObjectId, ref: 'chatRoom' },
   reputation: {
     type: Number,
     required: true,
