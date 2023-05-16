@@ -1,20 +1,15 @@
 /** hooks */
 import React, { useState } from 'react';
 
-/**components */
-import Header from 'components/Header';
-import Footer from 'components/Footer';
-
 /** libs */
 import axios from 'axios';
 
 /** interface */
-interface IPost {
-  id: String;
+interface ICreatePostReq {
   title: String;
   contents: String;
   register_date: Date;
-  langs: String[];
+  lang: String[];
   per_minute: Number;
   comments?: Object[];
   creator: String;
@@ -52,10 +47,9 @@ const ReviewerList = () => {
     setPricePerMin(+event.target.value);
   };
 
-  const onSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitForm = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const params: IPost = {
-      id: generateId(),
+    const params: ICreatePostReq = {
       title,
       contents,
       register_date: new Date(),
@@ -74,13 +68,12 @@ const ReviewerList = () => {
   };
   return (
     <>
-      <Header />
       <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
         <h1>Create a post</h1>
       </section>
       <main className="w-full h-fit px-96 bg-[#ffffff]">
         <section className="flex justify-between items-center py-20 text-[#8A8FB9]">
-          <form className="w-full px-20 py-20 bg-[#EEEFFB]" onSubmit={onSubmitForm}>
+          <div className="w-full px-20 py-20 bg-[#EEEFFB]">
             <h1 className="text-[40px] font-bold mb-20">글을 올려 보아라</h1>
             <label htmlFor="title">
               <input
@@ -149,13 +142,13 @@ const ReviewerList = () => {
             <button
               type="submit"
               className="w-fit h-16 px-12 block float-right	bg-[#FB2E86] text-[#FFFFFF] rounded text-xl font-josefin"
+              onClick={onSubmitForm}
             >
               등록하기
             </button>
-          </form>
+          </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 };

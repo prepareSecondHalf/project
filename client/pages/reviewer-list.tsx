@@ -1,9 +1,5 @@
 /** hooks */
-import { useEffect, useState } from 'react';
-
-/**components */
-import Header from 'components/Header';
-import Footer from 'components/Footer';
+import { Key, useEffect, useState } from 'react';
 
 /** libs */
 import axios from 'axios';
@@ -11,7 +7,6 @@ import axios from 'axios';
 /** interface */
 interface IPost {
   _id: String;
-  id: String;
   title: String;
   contents: String;
   register_date: Date;
@@ -23,6 +18,7 @@ interface IPost {
 
 const ReviewerList = () => {
   const [posts, setPosts] = useState<IPost[]>([]);
+
   useEffect(() => {
     const getPosts = async () => {
       try {
@@ -44,7 +40,6 @@ const ReviewerList = () => {
 
   return (
     <>
-      <Header />
       <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
         <h1>Banner of the List</h1>
       </section>
@@ -60,7 +55,7 @@ const ReviewerList = () => {
         <section>
           {posts.map((post) => {
             return (
-              <div key={post._id} className="w-full flex mb-16">
+              <div key={post._id as Key} className="w-full flex mb-16">
                 <div className="w-72 h-60 bg-[#EEEFFB]">Image of the Reviewer</div>
                 <div className="p-8">
                   <div>{post.creator}</div>
@@ -80,7 +75,6 @@ const ReviewerList = () => {
           })}
         </section>
       </main>
-      <Footer />
     </>
   );
 };
