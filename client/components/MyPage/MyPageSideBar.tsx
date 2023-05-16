@@ -55,12 +55,9 @@ const SideBar: NextPage = () => {
             <MyPageSideBar className='rounded-lg'>
                 {
                     myPageSideMenu.map((item) => (
-                        <div className="menu-item" key={item.key}>
-                            {/* <Link href='/mypage' as={item.href} passHref> */}
-                            <Link href={item.href} passHref>
-                                {item.title}
-                            </Link>
-                        </div>
+                        <Link href={item.href} passHref className="menu-item" key={item.key}>
+                            {item.title}
+                        </Link>
                     ))
                 }
             </MyPageSideBar>

@@ -29,7 +29,9 @@ export interface RequestPayParams extends RequestPayAdditionalParams {
     buyer_postcode?: string
     notice_url?: string | string[]
     display?: Display
-    customer_uid?: string
+    customer_uid?: string,
+    bypass?: object,
+    period?: object,
 }
 
 // 콜백 함수 정의
@@ -71,4 +73,10 @@ export interface Iamport {
     params: RequestPayParams,
     callback?: RequestPayResponseCallback,
   ) => void
+}
+
+export type PaymentMethodType = {
+    [type: string]: RequestPayParams,
+    card: RequestPayParams,
+    phone: RequestPayParams,
 }
