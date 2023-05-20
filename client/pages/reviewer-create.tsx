@@ -1,5 +1,5 @@
 /** hooks */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 /** libs */
 import axios from 'axios';
@@ -13,8 +13,25 @@ interface ICreatePostReq {
   per_minute: Number;
   comments?: Object[];
   creator: String;
+
+  post: IPost; // 이렇게함
 }
-const generateId = (): string => {
+
+// interface 폴더에 type 옮겨두십쇼
+// 리액트쿼리 씁시다!
+// 만들어두고 추가적인 내용은
+interface IPost {
+  _id: String;
+  title: String;
+  contents: String;
+  register_date: Date;
+  lang: String[];
+  per_minute: Number;
+  comments?: Object[];
+  creator: String;
+}
+
+const generateTempId = (): string => {
   return Math.random().toString();
 };
 
@@ -24,6 +41,25 @@ const ReviewerList = () => {
   const [lang, setLang] = useState('');
   const [langs, setLangs] = useState<String[]>([]);
   const [pricePerMin, setPricePerMin] = useState(0);
+  const [post, setPost] = useState<IPost>();
+
+  useEffect(() => {
+    const tempId = '6456fb0b4ee6e354c8fa206d';
+    if (!tempId) return;
+
+    const getPost = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/post/${tempId}`);
+        console.log('i got a reponse!', response);
+        setPost(response?.data?.post);
+        console.log('post', post);
+      } catch (error) {
+        console.log('error occured!!');
+        console.dir(error);
+      }
+    };
+    getPost();
+  }, []);
 
   const onChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -131,7 +167,7 @@ const ReviewerList = () => {
                 return (
                   <li
                     className="w-fit h-2/5 flex items-center px-4 bg-[#1BE982] text-[#EEEFFB] text-sm rounded border-white"
-                    key={lang + generateId()}
+                    key={lang + generateTempId()}
                   >
                     {lang}
                   </li>

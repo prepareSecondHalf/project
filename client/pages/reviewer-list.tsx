@@ -24,11 +24,11 @@ const ReviewerList = () => {
       try {
         const response = await axios.get('http://localhost:8080/api/post/');
         console.log('i got a reponse!', response);
-        setPosts(
-          response?.data?.posts.sort((a: Date, b: Date) => {
-            return +b - +a;
-          })
-        );
+        const sortedPosts = response?.data?.posts.sort((a: IPost, b: IPost) => {
+          return new Date(b.register_date).getTime() - new Date(a.register_date).getTime();
+        });
+        console.log('sorted post', sortedPosts);
+        setPosts(sortedPosts);
         console.log('sorted post', posts);
       } catch (error) {
         console.log('error occured!!');
@@ -55,7 +55,7 @@ const ReviewerList = () => {
         <section>
           {posts.map((post) => {
             return (
-              <div key={post._id as Key} className="w-full flex mb-16">
+              <div key={post._id as Key} className="w-full flex mb-16 cursor-pointer">
                 <div className="w-72 h-60 bg-[#EEEFFB]">Image of the Reviewer</div>
                 <div className="p-8">
                   <div>{post.creator}</div>
