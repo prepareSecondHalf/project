@@ -1,6 +1,4 @@
 import { Html, Head, Main, NextScript } from 'next/document';
-import Footer from 'components/Footer';
-import Header from 'components/Header';
 import Script from 'next/script';
 
 export default function Document() {
@@ -11,10 +9,8 @@ export default function Document() {
         <Script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js" />
       </Head>
       <body>
-        <Header />
         <Main />
         <NextScript />
-        <Footer />
       </body>
     </Html>
   );

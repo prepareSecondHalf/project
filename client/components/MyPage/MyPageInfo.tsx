@@ -72,53 +72,37 @@ const MyPageInfo: NextPage = () => {
     const [userRequestReview, setUserRequestReview] = useState<IFcMyRequestHistory[]>(initialRHData);
     const [userActivityHistory, setUseActivityHistory] = useState<IFcMyActivityHistory[]>(initialAHDAta);
     const [userWishList, setUseWishList] = useState<IFcWishList[]>(initialWLData);
+    const [isPayment, setIsPayment] = useState<boolean>(false);
 
     const router = useRouter();
     useEffect(() => {
         window.addEventListener('message', (e: MessageEvent) => {
             const { data } = e;
             
-            console.log(data, " : data get");
-            initialData.cookie = data.paid_amount;
-            setMyInfo(initialData);
+            // console.log(data, " : data get");
+            // initialData.cookie = data.paid_amount;
+            // setMyInfo(initialData);
         })
         
     }, [])
 
-    const openPaymentWindow = async (params: RequestPayParams) => {
-        const { IMP } = window;
-        IMP?.init('imp23735785');
+    // const openPaymentWindow = async (params: RequestPayParams) => {
+    //     // const { IMP } = window;
+    //     // IMP?.init('imp23735785');
       
-        const { pg, pay_method, merchant_uid, amount, name, buyer_email, buyer_name, buyer_tel, buyer_addr, buyer_postcode } = params;
-        const url = `/payment/charge?merchant_uid=${merchant_uid}&amount=${amount}&buyer_name=${buyer_name}&buyer_tel=${buyer_tel}`;
-        // const list = (
-        //     <FixedSizeList height={800} width={900} itemSize={100} itemCount={10}>
-        //         {({ index, style }: PaymentProps) => <Charge />}
-        //     </FixedSizeList>
-        // )
-        // const html = renderToString(list)
-        window.open(url, '_blank', 'width=900, height=800');
-        // window.open(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`, '_blank');
-        // const containerRef = useRef<HTMLDivElement | null>(null);
-    };
-
-    const onPayment = () => {
-        // window.open('/payment/charge', '포인트 충전', 'width=500, height=500');
-        const data: RequestPayParams = {
-            pg: `danal_tpay.${9810030929}`,
-            pay_method: 'card',
-            merchant_uid: `mid_${new Date().getTime()}`,
-            amount: 1000,
-            name : '주문명:결제테스트',
-            buyer_email : 'test@portone.io',
-            buyer_name : '구매자이름',
-            buyer_tel : '010-1234-5678',
-            buyer_addr : '서울특별시 강남구 삼성동',
-            buyer_postcode : '123-456',
-        }
-
-        openPaymentWindow(data);
-    }
+    //     // const { pg, pay_method, merchant_uid, amount, name, buyer_email, buyer_name, buyer_tel, buyer_addr, buyer_postcode } = params;
+    //     // const url = `/payment/charge?merchant_uid=${merchant_uid}&amount=${amount}&buyer_name=${buyer_name}&buyer_tel=${buyer_tel}`;
+    //     // const list = (
+    //     //     <FixedSizeList height={800} width={900} itemSize={100} itemCount={10}>
+    //     //         {({ index, style }: PaymentProps) => <Charge />}
+    //     //     </FixedSizeList>
+    //     // )
+    //     // const html = renderToString(list)
+    //     // window.open(url, '_blank', 'width=900, height=800');
+    //     // window.open(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`, '_blank');
+    //     // const containerRef = useRef<HTMLDivElement | null>(null);
+    //     return (<Charge />)
+    // };
 
     return (
         <>
@@ -180,7 +164,7 @@ const MyPageInfo: NextPage = () => {
                         }
                     </div>
                 </MyPageActiveHistory>
-                <MyPageActiveHistory className="rounded-md">
+                {/* <MyPageActiveHistory className="rounded-md">
                     <p className="category-title">위시리스트</p>
                     <div className={'category-list ' + (userWishList.length > 0?'':'no-data')}>
                         {
@@ -193,21 +177,21 @@ const MyPageInfo: NextPage = () => {
                             )) : '위시리스트가 존재하지 않습니다.'
                         }
                     </div>
-                </MyPageActiveHistory>
+                </MyPageActiveHistory> */}
                 <MyPageActiveHistory className="rounded-md">
                     <p className="category-title" data-category="cookie">
-                        쿠키
                         <span>
-                            <button className="w-[100px] bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred"
-                                onClick={onPayment}>
-                                충전하기
-                            </button>
+                            쿠키
                         </span>
+                        <button className="w-[100px] bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred"
+                            // onClick={onPayment}>
+                            >
+                            <Link href="/payment/charge">충전하기</Link>
+                        </button>
                     </p>
                     <div className="category-item" data-category="cookie">{myInfo.cookie}</div>
                 </MyPageActiveHistory>
             </div>
-            {/* <Payment /> */}
         </>
     )
 }
