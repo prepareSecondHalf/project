@@ -1,81 +1,97 @@
 const SocketIO = require('socket.io');
 const { Chat } = require('../models/chat');
 const { ChatRoom } = require('../models/chatRoom');
+const moment = require('moment');
 
 module.exports = (server) => {
-  const io = SocketIO(server, {
-    path: '/api/chat',
-    cors: { origin: '*', methods: ['GET', 'POST'] },
-  });
-
-  const userList = [];
-
-  io.on('connection', (socket) => {
-    let userId = '';
-
-    const req = socket.request;
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    socket.on('setChat', (info) => {
-      ChatRoom.findOne({ roomId: socket.id }).then((room) => {
-        if (room) console.log(`${socket.id} Room Connected`);
-        else {
-          let users = [];
-          users.push(info.userId);
-
-          const newRoom = new ChatRoom({
-            roomId: socket.id,
-            owner: info.userId,
-            users,
-          });
-          newRoom.save();
-
-          console.log('new Connection:::', ip, socket.id);
-        }
-      });
-
-      io.emit('setChat', info);
+    const io = SocketIO(server, {
+        path: '/api/chat',
+        cors: { origin: '*', methods: ['GET', 'POST'] },
     });
 
-    socket.on('disconnect', () => {
-      socket.leave(userId);
+    const userList = [];
 
-      for (let i in userList) {
-        if (userList[i].name === userId) userList.splice(i, 1);
-      }
+    io.on('connection', (socket) => {
+        let userId = '';
 
-      io.emit('getUserList', userList);
-    });
+        const req = socket.request;
+        const ip =
+            req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-    socket.on('error', (err) => {
-      console.error(err);
-    });
-
-    socket.on('sendMsg', (info) => {
-      console.log('socketId:::', socket.id);
-      const newChat = new Chat({
-        roomId: socket.id,
-        user: info.userId,
-        message: info.msg,
-      });
-      newChat.save();
-
-      ChatRoom.findOneAndUpdate(
-        { roomId: socket.id },
-        {
-          $push: {
-            chats: newChat._id,
-          },
-        },
-      )
-        .then(() => {
-          res.status(200).json({ success: true });
-        })
-        .catch((e) => {
-          res.status(400).json({ success: false });
+        socket.on('getAllChatRoom', (info) => {
+            ChatRoom.find({ users: info.userId })
+                .populate('chats')
+                .then((rooms) => {
+                    if (!rooms)
+                        io.emit('getAllChatRoom', {
+                            success: false,
+                            msg: 'noRoom',
+                        });
+                    else
+                        io.emit('getAllChatRoom', {
+                            success: true,
+                            rooms: rooms.map((item) => {
+                                return {
+                                    roomId: item.roomId,
+                                    owner: item.owner,
+                                    chats: item.chats,
+                                };
+                            }),
+                        });
+                });
         });
 
-      io.emit('sendMsg', info);
+        socket.on('createChat', (info) => {
+            const newChatRoom = new ChatRoom({
+                roomId: info.userId + moment().format('YYYYMMDDhhmmss'),
+                owner: info.userId,
+                users: [info.userId, info.opponentUserId],
+            });
+            newChatRoom.save();
+
+            io.emit('createChat', info);
+        });
+
+        socket.on('enterChat', (info) => {
+            ChatRoom.findOne({ roomId: info.roomId }).then((room) => {
+                if (room) console.log(`${socket.id} Room Connected`);
+                else console.log('Error::: No Chat Room');
+            });
+
+            io.emit('enterChat', info);
+        });
+
+        socket.on('disconnect', () => {
+            socket.leave(userId);
+
+            io.emit('getUserList', userList);
+        });
+
+        socket.on('error', (err) => {
+            console.error(err);
+        });
+
+        socket.on('sendMsg', async (info) => {
+            const newChat = new Chat({
+                roomId: info.roomId,
+                user: info.userId,
+                message: info.msg,
+            });
+            newChat.save();
+
+            console.log('here');
+
+            await ChatRoom.findOneAndUpdate(
+                { roomId: info.roomId },
+                {
+                    $push: {
+                        chats: { _id: newChat._id },
+                    },
+                },
+            );
+            console.log('here2');
+
+            io.emit('sendMsg', newChat);
+        });
     });
-  });
 };
