@@ -4,7 +4,7 @@ import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from
 import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
 // image
-import Delete from 'public/delete.svg';
+// import Delete from 'public/delete.svg';
 
 // util
 import { numberReg, numberComma } from 'utils/util';
@@ -190,7 +190,7 @@ const Charge: NextPage = () => {
                 <p className="title font-medium text-[22px]">일반결제</p>
                 <div className="price-box">
                     <input type="text" className={paymentInputClassName} value={chargeCash} onChange={handleChargeCach} required />
-                    <button onClick={handleDeleteInputPrice}><Delete /></button>
+                    {/* <button onClick={handleDeleteInputPrice}><Delete /></button> */}
                 </div>
             </div>
             <div className="payment-box payment-method">
