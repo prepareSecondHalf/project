@@ -86,30 +86,12 @@ const MyPageInfo: NextPage = () => {
         
     }, [])
 
-    // const openPaymentWindow = async (params: RequestPayParams) => {
-    //     // const { IMP } = window;
-    //     // IMP?.init('imp23735785');
-      
-    //     // const { pg, pay_method, merchant_uid, amount, name, buyer_email, buyer_name, buyer_tel, buyer_addr, buyer_postcode } = params;
-    //     // const url = `/payment/charge?merchant_uid=${merchant_uid}&amount=${amount}&buyer_name=${buyer_name}&buyer_tel=${buyer_tel}`;
-    //     // const list = (
-    //     //     <FixedSizeList height={800} width={900} itemSize={100} itemCount={10}>
-    //     //         {({ index, style }: PaymentProps) => <Charge />}
-    //     //     </FixedSizeList>
-    //     // )
-    //     // const html = renderToString(list)
-    //     // window.open(url, '_blank', 'width=900, height=800');
-    //     // window.open(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`, '_blank');
-    //     // const containerRef = useRef<HTMLDivElement | null>(null);
-    //     return (<Charge />)
-    // };
-
     return (
         <>
             <div className="profile-base">
                 <div className="profile-box">
                     <div className="profile rounded-full">
-
+                        <img src="" alt="" />
                     </div>
                     <p className="user-name">
                         {myInfo.nick}

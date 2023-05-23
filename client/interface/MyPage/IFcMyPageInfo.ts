@@ -1,11 +1,15 @@
 export interface IFcMyInformation {
     name: string,
-    nick: string,
     email: string,
+    nick: string,
+    grade: string,
+    point: number,
     phoneNumber: string,
-    level: string,
+    commoents: string[],
+    reviews: '',
+    lang: string[],
+    photo: string,
     reviewer: boolean,
-    cookie: number,
 }
 
 // 나중에 데이터가 정상적으로 돌아오면 삭제 예정
