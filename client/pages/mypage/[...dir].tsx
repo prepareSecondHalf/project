@@ -7,7 +7,7 @@ import SideBar from 'components/MyPage/MyPageSideBar';
 import CashUsageHistory from "components/MyPage/CashUsageHistory";
 import CashChargeHistory from "components/MyPage/CashChargeHistory";
 import Withdraw from "components/MyPage/withdraw";
-import MyPageInfo from "./MyPageInfoEdit";
+import MyPageInfo from "components/MyPage/MyPageInfo";
 
 // import Styled
 import { Container, MyPageWrapper, MyPageContent } from 'styles/myPage/myPageStyled';

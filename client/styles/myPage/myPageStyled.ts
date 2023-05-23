@@ -52,6 +52,7 @@ const MyPageContent = Styled.div`
         height: 120px;
         background-color: #E2E2E2;
         margin-bottom: 10px;
+        overflow: hidden;
     }
 
     & .profile-base {
