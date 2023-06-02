@@ -8,6 +8,7 @@ import CashUsageHistory from "components/MyPage/CashUsageHistory";
 import CashChargeHistory from "components/MyPage/CashChargeHistory";
 import Withdraw from "components/MyPage/withdraw";
 import MyPageInfo from "components/MyPage/MyPageInfo";
+import MyPageInfoEdit from "components/MyPage/MyPageInfoEdit";
 
 // import Styled
 import { Container, MyPageWrapper, MyPageContent } from 'styles/myPage/myPageStyled';
@@ -54,6 +55,12 @@ const menus = [
         title: '회원탈퇴',
         dir: ['withdraw'],
         cmp: <Withdraw />,
+    },
+    {
+        key: '7',
+        title: '내 정보 수정하기',
+        dir: ['edit'],
+        cmp: <MyPageInfoEdit />,
     },
 ];
 

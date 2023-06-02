@@ -136,18 +136,25 @@ router.post('/login', (req, res) => {
   });
 });
 
-function authenticateToken(req, res, next) {
+const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (token == null) {
     // No token provided
+    console.log("token is null")
     return res.sendStatus(401);
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       // Invalid token
+      console.log(err, " : err")
+      // return res.json({
+      //   success: false,
+      //   message: 'expired',
+      //   status: 403
+      // });
       return res.sendStatus(403);
     }
 
@@ -168,5 +175,32 @@ router.get('/myprofile', authenticateToken, (req, res) => {
     })
   }
 })
+
+router.post('/user/update', async (req, res) => {
+  const { data } = req.body;
+  // const { id } = req.user;
+  
+  if (!data.userid) {
+    console.log(data);
+    return res.status(400).json({ success: false, msg: '로그인을 확인해주세요.' });
+  } else {
+    const updateQuery = { $set: { nickname: data.nickname, phone: data.phone, photo: data.photo, lang: data.lang } };
+    const option = { returnOriginal: false };
+
+    try {
+      const updateUser = await UserTmp.findOneAndUpdate({ _id: data.userid }, updateQuery, option );
+      console.log(updateUser)
+      return res.json({
+        success: true,
+        message: '수정이 완료되었습니다.',
+      })
+    } catch(err) {
+      if (err) { 
+        console.error(err, " : err");
+        return res.json({ success: false, message: err });
+      }
+    }
+  }
+});
 
 module.exports = router;

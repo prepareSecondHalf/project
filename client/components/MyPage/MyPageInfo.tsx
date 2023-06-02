@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+// import { useState, useEffect, useRef } from "react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
@@ -8,7 +8,7 @@ import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInformation, IFcMyRequestHistory, IFcMyActivityHistory, IFcWishList } from 'interface/MyPage/IFcMyPageInfo';
 
 // Util
-import { setAuthToken, setHeaderAuth, removeAuthToken } from "utils/loginAuth";
+import { setAuthToken, setHeaderAuth, removeAuthToken, getToken } from "utils/loginAuth";
 import { Apis } from "utils/api";
 import axios, { AxiosError } from "axios";
 
@@ -48,8 +48,9 @@ const getProfile = async () => {
         if (window.localStorage.getItem("token")) {
             setAuthToken(window.localStorage.getItem("token") as string);
             setHeaderAuth();
+
             const res = await Apis.get('/user-tmp/myprofile');
-            
+            console.log("???")
             return res.user;
         }
         // try {
@@ -59,16 +60,20 @@ const getProfile = async () => {
     }
 }
 
+const token = getToken();
+
 const MyPageInfo: NextPage = () => {
 
     const { data, isSuccess, error } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
         cacheTime: Infinity,
         staleTime: 3600,
-        onError: (err) => {
+        onError: (err: AxiosError) => {
+            // console.log(err.toJSON(), " !!!!")
             if (axios.isAxiosError(err)) {
-                if (err.response?.status === 403) {
-                    alert('시간이 만료되어 로그아웃 되었습니다. 다시 로그인 해주세요.')
-                    removeAuthToken(window.localStorage.getItem("token") as string);
+                if (err.response?.status === 403 && token) {
+                    alert('시간이 만료되어 로그아웃 되었습니다. 다시 로그인 해주세요.');
+                    removeAuthToken(token);
+                    if (typeof window !== undefined) window.location.reload();
                 } else {
                     console.error(err, " : Profile get Error!!!");
                 }
@@ -76,9 +81,9 @@ const MyPageInfo: NextPage = () => {
         }
     });
 
-    const [userRequestReview, setUserRequestReview] = useState<IFcMyRequestHistory[]>(initialRHData);
-    const [userActivityHistory, setUseActivityHistory] = useState<IFcMyActivityHistory[]>(initialAHDAta);
-    const [userWishList, setUseWishList] = useState<IFcWishList[]>(initialWLData);
+    // const [userRequestReview, setUserRequestReview] = useState<IFcMyRequestHistory[]>(initialRHData);
+    // const [userActivityHistory, setUseActivityHistory] = useState<IFcMyActivityHistory[]>(initialAHDAta);
+    // const [userWishList, setUseWishList] = useState<IFcWishList[]>(initialWLData);
 
     return (
         <>
@@ -109,13 +114,29 @@ const MyPageInfo: NextPage = () => {
                                     <input type="text" className="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500" readOnly value={data.phone} />
                                 </div>
                                 <div>
+                                    <span className="field-label">스택</span>
+                                    <input type="text" className="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500" readOnly value={data.lang} />
+                                </div>
+                                <div>
+                                    <span className="field-label">평점</span>
+                                    <input type="text" className="border-slate-200 placeholder-slate-400 contrast-more:border-slate-400 contrast-more:placeholder-slate-500" readOnly value={data.reputation} />
+                                </div>
+                                <div>
                                     <span className="field-label">리뷰어 신청 여부</span>
                                     <input type="checkbox" readOnly checked={data.isSubmit} />
+                                </div>
+                                <div className="point-box">
+                                    <span className="field-label">Point</span>
+                                    <span>{data.point} 포인트 </span>
+                                    <button className="w-[100px] bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred"
+                                        >
+                                        <Link href="/payment/charge">충전하기</Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         <div className="user-info grid grid-cols-2 gap-x-16 gap-y-8">
-                            <MyPageActiveHistory className="rounded-md">
+                            {/* <MyPageActiveHistory className="rounded-md">
                                 <p className="category-title">리뷰 신청내역</p>
                                 <div className={'category-list ' + (userRequestReview.length > 0?'':'no-data')}>
                                     {
@@ -142,7 +163,7 @@ const MyPageInfo: NextPage = () => {
                                         )) : '리뷰어 활동 내역이 없습니다.'
                                     }
                                 </div>
-                            </MyPageActiveHistory>
+                            </MyPageActiveHistory> */}
                             {/* <MyPageActiveHistory className="rounded-md">
                                 <p className="category-title">위시리스트</p>
                                 <div className={'category-list ' + (userWishList.length > 0?'':'no-data')}>
@@ -157,19 +178,15 @@ const MyPageInfo: NextPage = () => {
                                     }
                                 </div>
                             </MyPageActiveHistory> */}
-                            <MyPageActiveHistory className="rounded-md">
+                            {/* <MyPageActiveHistory className="rounded-md">
                                 <p className="category-title" data-category="cookie">
                                     <span>
                                         쿠키
                                     </span>
-                                    <button className="w-[100px] bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred"
-                                        // onClick={onPayment}>
-                                        >
-                                        <Link href="/payment/charge">충전하기</Link>
-                                    </button>
+                                    
                                 </p>
                                 <div className="category-item" data-category="cookie">{data.point}</div>
-                            </MyPageActiveHistory>
+                            </MyPageActiveHistory> */}
                         </div>
                     </>
                 ): <></>
