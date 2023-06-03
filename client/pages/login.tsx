@@ -1,10 +1,10 @@
-import Footer from "components/Footer";
-import Header from "components/Header";
-import axios from 'axios';
+import axios from "axios";
 import { NextPage } from "next";
 import { BaseSyntheticEvent, useState } from "react";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../_actions/user_action";
 
-const Login: NextPage = () => {
+const Login: NextPage = (props) => {
   const titleStyle = {
     fontSize: "32px",
     color: "#000",
@@ -35,124 +35,154 @@ const Login: NextPage = () => {
     fontWeight: "700",
   };
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggedOut, setIsLoggedOut] = useState(true);
 
+  const dispatch = useDispatch();
+
   const handleLogout = () => {
-    axios.post("http://localhost:8080/api/user/logout")
-    // axios.get("/")
-    .then((res) => {
-      console.log('로그아웃 성공', res);
-      setIsLoggedIn(false);
-      setIsLoggedOut(true);
-    }).catch((err) => {
-      console.log('로그아웃 실패', err);
-    })
-  }
-    
+    axios
+      .post("http://localhost:8080/api/user/logout")
+      // axios.get("/")
+      .then((res) => {
+        console.log("로그아웃 성공", res);
+        setIsLoggedIn(false);
+        setIsLoggedOut(true);
+      })
+      .catch((err) => {
+        console.log("로그아웃 실패", err);
+      });
+  };
+
   const handleLogin = (e: BaseSyntheticEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      return alert('이메일 또는 패스워드를 확인해주세요');
+      return alert("이메일 또는 패스워드를 확인해주세요");
     } else {
+      console.log("email>>>", email);
+      console.log("password>>>", password);
+
       let body = {
         email,
-        password
+        password,
       };
 
-      axios.post("/login", body)
-      .then((res) => {
-        console.log('로그인 성공', res);
-        setIsLoggedIn(true);
-        setIsLoggedOut(false);
-
-      }).catch((err) => {
-        console.log('로그인 실패', err);
-      })
+      dispatch(loginUser(body)).then((res) => {
+        console.log("res>>>>", res);
+        if (res.payload.loginSuccess) {
+          // props.history.push("/");
+          setIsLoggedIn(true);
+        } else {
+          alert("error");
+          setIsLoggedOut(false);
+        }
+      });
     }
+  };
 
+  // const handleLogin = (e: BaseSyntheticEvent) => {
+  //   e.preventDefault();
 
-  }
+  //   useEffect(() => {
+  //     let body = {
+  //       email,
+  //       password,
+  //     };
+
+  //     axios
+  //       .post("/login", body)
+  //       .then((res) => {
+  //         console.log("로그인 성공", res);
+  //         setIsLoggedIn(true);
+  //         setIsLoggedOut(false);
+  //       })
+  //       .catch((err) => {
+  //         console.log("로그인 실패", err);
+  //         return alert("이메일 또는 패스워드를 확인해주세요");
+  //       });
+  //   }, [email && password]);
+  // };
 
   return (
     <div className="w-full min-w-[1200px]">
       {/* <Header /> */}
       <div className="w-full">
         <div className="top w-full h-[764px] bg-[#f2f0ff] flex justify-center flex-col text-center text-[53px] font-bold font-josefin relative">
-
           <>
-            {!isLoggedIn 
-            ? 
-                // 로그인 화면
-                <div className="login-wrapper">
-                  <div className="title_wrapper">
-                    <h2 style={titleStyle}>Login</h2>
-                    <p style={subTitleStyle}>
-                      Please login using account detail below
-                    </p>
-                  </div>
-
-                  {/* email */}
-                  <div className="id_wrapper">
-                    <label htmlFor="id"></label>
-                    <input
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={accountInput}
-                      type="email"
-                      placeholder="Email Address"
-                      id="id"
-                    />
-                  </div>
-
-                  {/* password */}
-                  <div className="password_wrapper">
-                    <label htmlFor="password"></label>
-                    <input
-                      onChange={(e) => setPassword(e.target.value)}
-                      style={accountInput}
-                      type="password"
-                      placeholder="Password"
-                      id="password"
-                    />
-                  </div>
-
-                  {/* button */}
-                  <div className="request_user">
-                    <p style={requestUserText}>Forget your password?</p>
-                    <button 
-                      onClick={handleLogin}
-                      style={signinBtn} id="signin_btn">
-                      Sign In
-                    </button>
-                    <p style={requestUserText}>
-                      Don't have an Account? Create account
-                    </p>
-                  </div>
+            {!isLoggedIn ? (
+              // 로그인 화면
+              <div className="login-wrapper">
+                <div className="title_wrapper">
+                  <h2 style={titleStyle}>Login</h2>
+                  <p style={subTitleStyle}>
+                    Please login using account detail below
+                  </p>
                 </div>
-                :
-                // 로그인 성공
-                <div className="login-wrapper">
-                  <div className="title_wrapper">
-                    <h2 style={titleStyle}>Login 성공</h2>
-                    <p style={subTitleStyle}>
-                      로그인 성공했다
-                    </p>
-                  </div>
 
-                  {/* button */}
-                  <div className="request_user">
-                    <button 
-                      onClick={handleLogout}
-                      style={signinBtn} id="signin_btn">
-                      Logout
-                    </button>
-                  </div>
+                {/* email */}
+
+                <div className="id_wrapper">
+                  <label htmlFor="id"></label>
+                  <input
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={accountInput}
+                    type="email"
+                    placeholder="Email Address"
+                    id="id"
+                  />
                 </div>
-              }
-            </>
+
+                {/* password */}
+                <div className="password_wrapper">
+                  <label htmlFor="password"></label>
+                  <input
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={accountInput}
+                    type="password"
+                    placeholder="Password"
+                    id="password"
+                  />
+                </div>
+
+                {/* button */}
+                <div className="request_user">
+                  <p style={requestUserText}>Forget your password?</p>
+                  <button
+                    onClick={handleLogin}
+                    style={signinBtn}
+                    id="login_btn"
+                  >
+                    Log In
+                  </button>
+                  <p style={requestUserText}>
+                    Don't have an Account? Create account
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // 로그인 성공
+              <div className="login-wrapper">
+                <div className="title_wrapper">
+                  <h2 style={titleStyle}>Login 성공</h2>
+                  <p style={subTitleStyle}>로그인 성공했다</p>
+                </div>
+
+                {/* button */}
+                <div className="request_user">
+                  <button
+                    onClick={handleLogout}
+                    style={signinBtn}
+                    id="login_btn"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         </div>
         {/* <div className="w-full h-[800px] bg-white text-center flex flex-col justify-center text-7xl">
                 let's login page!!!!
