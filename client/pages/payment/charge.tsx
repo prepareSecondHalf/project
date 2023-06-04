@@ -1,9 +1,10 @@
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient, useMutation } from 'react-query';
 import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from 'interface/IFcPayment';
 import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
+import { Apis } from 'utils/api';
 // image
 // import Delete from 'public/delete.svg';
 
@@ -87,12 +88,22 @@ const paymentInputClassName = `bg-gray-50 border border-gray-300 text-gray-900 r
 focus:border-blue-500 block w-full pl-[15px] pl-0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 h-[48px] text-[18px] font-medium`;
 
+// const cashCharge = async () => {
+//     try {
+//         // const res = await Apis.post('/user-tmp/cashcharge');
+//         // return res;
+//     } catch(err) {
+//         console.error(err, " : Charge Cash Error !!!");
+//     }
+// }
+
 const Charge: NextPage = () => {
+
+    // const chargeMutation = useMutation();
 
     const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(paymentInitialState);
     const [tempCach, setTempCash] = useState<number>(0);
     const [chargeCash, setChargeCash] = useState<string>('0');
-    const [accInfo, setAccInfo] = useState();
     const qClient = useQueryClient();
     const data = qClient.getQueryData('getProfile');
     const state = qClient.getQueryState('getProfile');
@@ -100,10 +111,6 @@ const Charge: NextPage = () => {
     if (state && state.error) {
         console.warn(state.error);
     }
-
-    // useEffect(() => {
-        
-    // }, [])
 
     const handlePaymentType = (e: React.MouseEvent<HTMLElement>) => {
         console.log(data);
@@ -159,14 +166,13 @@ const Charge: NextPage = () => {
             const { success, merchant_uid, error_msg, imp_uid, error_code } = response
             if (success) {
                 console.log(response)
+
             } else {
                 console.log(response)
+                alert("결제 실패!")
             }
         }
         window.IMP?.request_pay(data, callback)
-        return () => {
-            console.log("Component disconnected")
-        }
     }
 
     return (

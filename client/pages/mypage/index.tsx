@@ -39,6 +39,7 @@ const MyPage: NextPage = () => {
     }, []);
 
     if (loginMutation.isSuccess) {
+        // console.log(loginMutation)
         setAuthToken(loginMutation.data.token);
     }
 

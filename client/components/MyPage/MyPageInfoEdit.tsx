@@ -30,7 +30,7 @@ const token = getToken();
 const userData: IFcMyInfoUpdateRequest = {
     userid: '',
     nickname: 'testEditSuccesss',
-    phone: '01012341234',
+    phone: '01012341234123123',
     lang: ['react', 'node', 'mongodb', 'express', 'babel', 'next', 'react-query', 'styled-components'],
     photo: 'https://dummyimage.com/600x400/000000/fff.png',
 }
