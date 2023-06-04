@@ -63,7 +63,7 @@ router.post('/register', (req, res) => {
           jwt.sign(
             { id: user.id },
             JWT_SECRET,
-            { expiresIn: 36000 },
+            { expiresIn: '1h' },
             (err, token) => {
               if (err) return res.status(400).json({ err });
 
@@ -98,6 +98,7 @@ router.post('/login', (req, res) => {
       .json({ success: false, msg: '비밀번호를 작성해주세요.' });
 
   UserTmp.findOne({ email }).then((user) => {
+    console.log(user, " : use")
     if (!user)
       return res
         .status(400)
@@ -111,27 +112,99 @@ router.post('/login', (req, res) => {
         return res
           .status(400)
           .json({ success: false, msg: '비밀번호를 확인해주세요.' });
-
+      console.log("jwt sign before console")
       jwt.sign(
         { id: user.id },
         JWT_SECRET,
-        { expiresIn: 36000 },
+        { expiresIn: '1h' },
         (err, token) => {
           if (err) return res.status(400).json({ success: false, msg: err });
 
           res.json({
             success: true,
             token,
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-            },
+            user
+            // user: {
+            //   id: user.id,
+            //   name: user.name,
+            //   email: user.email,
+            // },
           });
         },
       );
     });
   });
 });
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) {
+    // No token provided
+    console.log("token is null")
+    return res.sendStatus(401);
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      // Invalid token
+      console.log(err, " : err")
+      // return res.json({
+      //   success: false,
+      //   message: 'expired',
+      //   status: 403
+      // });
+      return res.sendStatus(403);
+    }
+
+    // Token is valid, store the user object in the request for further processing
+    req.user = user;
+    next();
+  });
+}
+
+router.get('/myprofile', authenticateToken, (req, res) => {
+  const { id } = req.user;
+  
+  if (!id) {
+    return res.status(400).json({ success: false, msg: '로그인 후 이용하실 수 있습니다.' });
+  } else {
+    UserTmp.findOne({ _id: id }).then((user) => {
+      if (user) res.json({ success: true, user });
+    })
+  }
+})
+
+router.post('/user/update', async (req, res) => {
+  const { data } = req.body;
+  // const { id } = req.user;
+  
+  if (!data.userid) {
+    console.log(data);
+    return res.status(400).json({ success: false, msg: '로그인을 확인해주세요.' });
+  } else {
+    const updateQuery = { $set: { nickname: data.nickname, phone: data.phone, photo: data.photo, lang: data.lang } };
+    const option = { returnOriginal: false };
+
+    try {
+      const updateUser = await UserTmp.findOneAndUpdate({ _id: data.userid }, updateQuery, option );
+      console.log(updateUser)
+      return res.json({
+        success: true,
+        message: '수정이 완료되었습니다.',
+      })
+    } catch(err) {
+      if (err) { 
+        console.error(err, " : err");
+        return res.json({ success: false, message: err });
+      }
+    }
+  }
+});
+
+router.post('/cashcharge', async (req, res) => {
+  
+})
 
 module.exports = router;

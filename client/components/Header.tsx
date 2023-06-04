@@ -35,8 +35,6 @@ const menus = [
 
 const Header: NextPage = () => {
 
-	const isShow = usePathname()!.indexOf('payment') >= 0 ? false : true;
-
 	return (
 		<>
 			{/* {isShow ? */}

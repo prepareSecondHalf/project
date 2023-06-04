@@ -3,8 +3,6 @@ import { NextPage } from 'next';
 
 const Footer: NextPage = () => {
 
-	const isShow = usePathname()!.indexOf('/payment') >= 0 ? false : true
-
 	return (
 		<>
 			<div className="w-full mt-[200px]">

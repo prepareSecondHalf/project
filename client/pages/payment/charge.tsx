@@ -1,8 +1,10 @@
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
+import { useQueryClient, useMutation } from 'react-query';
 import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from 'interface/IFcPayment';
 import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
+import { Apis } from 'utils/api';
 // image
 // import Delete from 'public/delete.svg';
 
@@ -56,7 +58,6 @@ const payment: PaymentMethodType = {
         buyer_tel: '010-1234-5678',   //필수 파라미터 입니다.
         buyer_addr: '서울특별시 강남구 삼성동',
         buyer_postcode: '123-456',
-        // m_redirect_url: '{모바일에서 결제 완료 후 리디렉션 될 URL}',
         escrow: true, //에스크로 결제인 경우 설정
         bypass: {
             acceptmethod: "noeasypay", // 간편결제 버튼을 통합결제창에서 제외(PC)
@@ -87,36 +88,32 @@ const paymentInputClassName = `bg-gray-50 border border-gray-300 text-gray-900 r
 focus:border-blue-500 block w-full pl-[15px] pl-0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 h-[48px] text-[18px] font-medium`;
 
+// const cashCharge = async () => {
+//     try {
+//         // const res = await Apis.post('/user-tmp/cashcharge');
+//         // return res;
+//     } catch(err) {
+//         console.error(err, " : Charge Cash Error !!!");
+//     }
+// }
+
 const Charge: NextPage = () => {
 
-    // const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(payment.card);
+    // const chargeMutation = useMutation();
+
     const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(paymentInitialState);
     const [tempCach, setTempCash] = useState<number>(0);
     const [chargeCash, setChargeCash] = useState<string>('0');
-    const [accInfo, setAccInfo] = useState(); 
+    const qClient = useQueryClient();
+    const data = qClient.getQueryData('getProfile');
+    const state = qClient.getQueryState('getProfile');
 
-
-    useEffect(() => {
-        // const { IMP } = window;
-        // IMP?.init('imp23735785');
-        // const amount: number = 1000
-        // const data = paymentInfo;
-
-        // const callback = (response: RequestPayResponse) => {
-        //     const { success, merchant_uid, error_msg, imp_uid, error_code } = response
-        //     if (success) {
-        //         console.log(response)
-        //     } else {
-        //         console.log(response)
-        //     }
-        // }
-        // window.IMP?.request_pay(data, callback)
-        // return () => {
-        //     console.log("Component disconnected")
-        // }
-    }, [])
+    if (state && state.error) {
+        console.warn(state.error);
+    }
 
     const handlePaymentType = (e: React.MouseEvent<HTMLElement>) => {
+        console.log(data);
         let radioEl = e.currentTarget.childNodes[0] as HTMLInputElement;
         radioEl.click();
         const payMethod = e.currentTarget.dataset.fieldName;
@@ -169,14 +166,13 @@ const Charge: NextPage = () => {
             const { success, merchant_uid, error_msg, imp_uid, error_code } = response
             if (success) {
                 console.log(response)
+
             } else {
                 console.log(response)
+                alert("결제 실패!")
             }
         }
         window.IMP?.request_pay(data, callback)
-        return () => {
-            console.log("Component disconnected")
-        }
     }
 
     return (
@@ -228,17 +224,6 @@ const Charge: NextPage = () => {
         </ChargeContainer>
     )
 }
-/**
- *  캐시 이용안내
-    모든 상품은 부가세(VAT)포함 가격입니다.
-    캐시는 현금과 동일한 1:1 비율이며, 서비스 사용을 위해 자유롭게 사용하실 수 있습니다.
-    캐시를 정기 충전하시면 상품에 따라 일정량의 보너스 캐시가 지급됩니다.
-    캐시는 세금계산서 발행 대상이 아닙니다. 구매 후 신용카드 전표/휴대폰 결제 영수증은 개인소득공제용으로만 사용하실 수 있습니다.
-    환불 가능 기간은 충전일로부터 5년까지이며, 환불 시 보너스 캐시는 자동으로 차감됩니다.
-    충전캐시의 유효기간은 충전일로부터 5년입니다.
-    보너스캐시의 유효기간은 충전일로부터 180일입니다.
-*/
-// 마이페이지 > 충전/사용내역 > 환불받고자 하는 충전 건 선택 > 환불하기로 실시간 가능합니다.
 
 
 export default Charge;
