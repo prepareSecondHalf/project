@@ -101,7 +101,7 @@ app.post("/login", async (req, res) => {
         res
           .cookie("x_auth", userInfo.token)
           .status(200)
-          .json({ loginSuccess: true, userId: userInfo._id });
+          .json({ loginSuccess: true, userId: userInfo._id, token: userInfo.token });
       });
     });
   });

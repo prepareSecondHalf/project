@@ -4,11 +4,18 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import Script from "next/script";
 import "styles/globals.css";
 import { Provider } from "react-redux";
-import { applyMiddleware, createStore } from "redux";
+import { applyMiddleware, createStore, compose } from "redux";
 import promiseMiddleware from "redux-promise";
 import ReduxThunk from "redux-thunk";
 import Reducer from "../_reducers";
 import { useState, useEffect } from "react";
+import { SessionProvider  } from 'next-auth/react'
+
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION__?: typeof compose;
+  }
+}
 
 // React-Query Setting
 // const client = new QueryClient();
@@ -29,12 +36,11 @@ export default function App({ Component, pageProps }: AppProps) {
     // <QueryClientProvider client={client}>
     // typeof window !== "undefined" ? (
     domLoaded ? (
+      
       <Provider
         store={createStoreWidthMiddleware(
-          Reducer,
-          window.__REDUX_DEVTOOLS_EXTENSION__ &&
-            window.__REDUX_DEVTOOLS_EXTENSION__()
-        )}
+          Reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    )}
       >
         <Script
           type="text/javascript"
@@ -44,8 +50,10 @@ export default function App({ Component, pageProps }: AppProps) {
           type="text/javascript"
           src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
         />
-        <Component {...pageProps} />
+        <SessionProvider session={pageProps.session}>
+          <Component {...pageProps} />
         {/* <ReactQueryDevtools /> */}
+        </SessionProvider>
       </Provider>
     ) : (
       // </QueryClientProvider>

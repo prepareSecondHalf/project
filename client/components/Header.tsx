@@ -1,5 +1,14 @@
 import { NextPage } from 'next';
 import Link from 'next/link';
+// import {useSelector, useContext } from 'react-redux'
+
+
+// const user = useSelector(state => {
+//   console.log('state.user>>>', state);
+// });
+
+// console.log('userselect', user)
+// const dispatch = useDispatch();
 
 const menus = [
   {

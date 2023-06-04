@@ -12,4 +12,8 @@ export const Apis = {
   get: (url: string) => api.get(url).then((res: any) => res.data),
   post: (url: string, payload: any) =>
     api.post(url, payload).then((res: any) => res.data),
+  setTokenHeader: (authToken: string) => api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`,
+  removeToken: (authToken: string|null) => {
+    if (!authToken) delete api.defaults.headers.common['Authorization']
+  },
 };

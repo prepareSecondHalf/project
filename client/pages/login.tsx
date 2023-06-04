@@ -1,8 +1,13 @@
 import axios from "axios";
 import { NextPage } from "next";
-import { BaseSyntheticEvent, useState } from "react";
+import { BaseSyntheticEvent, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../_actions/user_action";
+// import { useNavigate } from "react-router-dom";
+import { useRouter } from 'next/router';
+import { signIn, signOut, useSession } from 'next-auth/react'
+
+// import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 const Login: NextPage = (props) => {
   const titleStyle = {
@@ -35,12 +40,27 @@ const Login: NextPage = (props) => {
     fontWeight: "700",
   };
 
+  const googleSigninBtn = {
+    width: "432px",
+    height: "57px",
+    borderRadius: "3px",
+    background: "white",
+    fontSize: "17px",
+    fontWeight: "700",
+    border: "1px solid black"
+  };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggedOut, setIsLoggedOut] = useState(true);
+  const {session, loading } = useSession();
+
+
 
   const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  const router = useRouter();
 
   const handleLogout = () => {
     axios
@@ -70,10 +90,12 @@ const Login: NextPage = (props) => {
         password,
       };
 
-      dispatch(loginUser(body)).then((res) => {
+      dispatch(loginUser(body))
+      .then((res) => {
         console.log("res>>>>", res);
         if (res.payload.loginSuccess) {
-          // props.history.push("/");
+          // navigate("/");
+          router.push('/');
           setIsLoggedIn(true);
         } else {
           alert("error");
@@ -82,6 +104,18 @@ const Login: NextPage = (props) => {
       });
     }
   };
+
+  // const Login = () => {
+  //   const { status } = useSession();
+  //   const router = useRouter();
+  //   console.log('googleLogin:  ', status);
+    
+  //   useEffect(() => {
+  //     if (status === 'unauthenticated') {
+  //       router.push('/login');
+  //     }
+  //   }, [status]);
+  //  }
 
   // const handleLogin = (e: BaseSyntheticEvent) => {
   //   e.preventDefault();
@@ -112,7 +146,7 @@ const Login: NextPage = (props) => {
       <div className="w-full">
         <div className="top w-full h-[764px] bg-[#f2f0ff] flex justify-center flex-col text-center text-[53px] font-bold font-josefin relative">
           <>
-            {!isLoggedIn ? (
+            {!isLoggedIn && !session ? (
               // 로그인 화면
               <div className="login-wrapper">
                 <div className="title_wrapper">
@@ -158,8 +192,19 @@ const Login: NextPage = (props) => {
                     Log In
                   </button>
                   <p style={requestUserText}>
-                    Don't have an Account? Create account
+                    Don't have an Account? <button onClick={(() => router.push('/signup'))}><b>Create account</b></button>
                   </p>
+                </div>
+
+                {/* google button */}
+                <div className="request_user">
+                  <button
+                    onClick={() => signIn('google')}
+                    style={googleSigninBtn}
+                    id="login_btn"
+                  >
+                    google Log In
+                  </button>
                 </div>
               </div>
             ) : (
