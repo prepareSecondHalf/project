@@ -32,81 +32,66 @@ const LogInBtn = styled.button`
   fontweight: 700;
 `;
 
+interface loginParam {
+  email: string;
+  password: string;
+}
+
 const Login: NextPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoggedOut, setIsLoggedOut] = useState(true);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoggedOut, setIsLoggedOut] = useState<boolean>(true);
 
-  // const { mutate, isLoading, isError, data, error } = useMutation(
-  //   "handleLogout",
-  //   () => Apis.post("/post", "user/logout"),
-  //   {
-  //     onSuccess: (res) => {
-  //       console.log("res:::", res);
-  //       setIsLoggedIn(false);
-  //       setIsLoggedOut(true);
-  //     },
-  //     onError: (error) => {
-  //       console.log("로그아웃 실패", error);
-  //     },
-  //   }
-  // );
+  const logOutMutation = useMutation(
+    (userInfo: loginParam) => Apis.post("/user/logout", { userInfo }),
+    {
+      onMutate: (variable) => {
+        console.log("onmutate", variable);
+      },
+      onSuccess: (res) => {
+        console.log("res:::", res);
+        setIsLoggedIn(false);
+        setIsLoggedOut(true);
+      },
+      onError: (error) => {
+        console.log("로그아웃 실패", error);
+      },
+    }
+  );
 
-  const handleLogout = async (): Promise<any> => {
-    console.log("로그아웃 성공");
-    const { isLoading, isError, data, error } = useMutation(
-      "handleLogout",
-      () => Apis.post("/post", "user/logout"),
-      {
-        onSuccess: (res) => {
-          console.log("res:::", res);
-          setIsLoggedIn(false);
-          setIsLoggedOut(true);
-        },
-        onError: (error) => {
-          console.log("로그아웃 실패", error);
-        },
-      }
-    );
+  const handleLogOut = () => {
+    logOutMutation.mutate({ email: "", password: "" });
   };
-  // const handleLogout = async (): Promise<any> => {
-  //   await axios
-  //     .post("http://localhost:8080/api/user/logout")
-  //     .then((res) => {
-  //       console.log("로그아웃 성공", res);
-  //       setIsLoggedIn(false);
-  //       setIsLoggedOut(true);
-  //     })
-  //     .catch((err) => {
-  //       console.log("로그아웃 실패", err);
-  //     });
-  // };
 
-  // async function handleLogin(e: BaseSyntheticEvent): Promise<any> {
-  async function handleLogin(e: BaseSyntheticEvent) {
-    e.preventDefault();
+  const logInMutation = useMutation(
+    (userInfo: loginParam) => Apis.post("/user/login", { userInfo }),
+    {
+      onMutate: (variable) => {
+        console.log("onmutate", variable);
+      },
+      onSuccess: (res) => {
+        console.log("res:::", res);
+        console.log("로그인 성공", res);
+        setIsLoggedIn(true);
+        setIsLoggedOut(false);
+      },
+      onError: (error) => {
+        console.log("로그인 실패", error);
+        alert(
+          "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
+        );
+      },
+    }
+  );
 
+  const handleLogIn = () => {
     if (!email || !password) {
       return alert("이메일 또는 패스워드를 확인해주세요");
     } else {
-      let body = {
-        email,
-        password,
-      };
-
-      await axios
-        .post("/login", body)
-        .then((res) => {
-          console.log("로그인 성공", res);
-          setIsLoggedIn(true);
-          setIsLoggedOut(false);
-        })
-        .catch((err) => {
-          console.log("로그인 실패", err);
-        });
+      logInMutation.mutate({ email: email, password: password });
     }
-  }
+  };
 
   return (
     <div className="w-full min-w-[1200px]">
@@ -146,9 +131,9 @@ const Login: NextPage = () => {
                 {/* button */}
                 <div className="request_user">
                   <RequestUserText>
-                    Don't have an Account? Create account
+                    Don&apos;t have an Account? Create account
                   </RequestUserText>
-                  <LogInBtn onClick={handleLogin} id="signin_btn">
+                  <LogInBtn onClick={handleLogIn} id="signin_btn">
                     Log In
                   </LogInBtn>
                 </div>
@@ -163,7 +148,7 @@ const Login: NextPage = () => {
 
                 {/* button */}
                 <div className="request_user">
-                  <LogInBtn onClick={() => handleLogout()} id="signout_btn">
+                  <LogInBtn onClick={handleLogOut} id="signout_btn">
                     Logout
                   </LogInBtn>
                 </div>
@@ -174,10 +159,6 @@ const Login: NextPage = () => {
       </div>
     </div>
   );
-
-  interface PropsType {
-    // onClick?: (e: React.KeyboardEvent) => void;
-  }
 };
 
 export default Login;
