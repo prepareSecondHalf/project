@@ -1,28 +1,23 @@
 /** hooks */
-import { Key, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 /** libs */
 import axios from 'axios';
 
-/** interface */
-interface IPost {
-  _id: String;
-  title: String;
-  contents: String;
-  register_date: Date;
-  lang: String[];
-  per_minute: Number;
-  comments?: Object[];
-  creator: String;
-}
+/** types */
+import { IPost } from 'interface/IFcPost';
 
 const ReviewerList = () => {
   const [post, setPost] = useState<IPost>();
+  const router = useRouter();
+  const pid = (router.query.reviewerpost as string[])[1];
 
   useEffect(() => {
+    console.log('pid: ', pid);
     const getPost = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/post/6456fb0b4ee6e354c8fa206d');
+        const response = await axios.get(`http://localhost:8080/api/post/${pid}`);
         console.log('i got a reponse!', response);
         setPost(response?.data?.post);
         console.log('post', post);

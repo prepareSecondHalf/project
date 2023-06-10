@@ -1,35 +1,15 @@
 /** hooks */
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 /** libs */
 import axios from 'axios';
 
-/** interface */
-interface ICreatePostReq {
-  title: String;
-  contents: String;
-  register_date: Date;
-  lang: String[];
-  per_minute: Number;
-  comments?: Object[];
-  creator: String;
+/** types */
+import { IPost, ICreatePostReq } from 'interface/IFcPost';
 
-  post: IPost; // 이렇게함
-}
-
-// interface 폴더에 type 옮겨두십쇼
 // 리액트쿼리 씁시다!
 // 만들어두고 추가적인 내용은
-interface IPost {
-  _id: String;
-  title: String;
-  contents: String;
-  register_date: Date;
-  lang: String[];
-  per_minute: Number;
-  comments?: Object[];
-  creator: String;
-}
 
 const generateTempId = (): string => {
   return Math.random().toString();
@@ -41,18 +21,22 @@ const ReviewerList = () => {
   const [lang, setLang] = useState('');
   const [langs, setLangs] = useState<String[]>([]);
   const [pricePerMin, setPricePerMin] = useState(0);
+  const [alertMsg, setAlertMsg] = useState('');
   const [post, setPost] = useState<IPost>();
 
+  // 수정 시 불러오기
   useEffect(() => {
-    const tempId = '6456fb0b4ee6e354c8fa206d';
+    let tempId = '';
+    // tempId = '6456fb0b4ee6e354c8fa206d';
     if (!tempId) return;
 
     const getPost = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/post/${tempId}`);
         console.log('i got a reponse!', response);
-        setPost(response?.data?.post);
-        console.log('post', post);
+        if (response.status === 200) {
+          setPost(response?.data?.post);
+        }
       } catch (error) {
         console.log('error occured!!');
         console.dir(error);
@@ -83,8 +67,21 @@ const ReviewerList = () => {
     setPricePerMin(+event.target.value);
   };
 
+  const closeAlert = () => {
+    setAlertMsg('');
+  };
+  const stopPropagation = (event: React.MouseEvent<HTMLDivElement>) => event.stopPropagation();
+
+  const router = useRouter();
   const onSubmitForm = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    const isValid = [title, contents].every((item) => !!item) && langs.length > 0;
+    if (!isValid) {
+      setAlertMsg('필수값을 입력하세요');
+      return;
+    }
+
     const params: ICreatePostReq = {
       title,
       contents,
@@ -93,10 +90,14 @@ const ReviewerList = () => {
       per_minute: pricePerMin,
       creator: 'ksg',
     };
+
     try {
       console.log('where is response???');
       const response = await axios.post('http://localhost:8080/api/post/', params);
       console.log('this is response', response);
+      if (response.status === 200) {
+        router.push('http://localhost:3000/reviewer-list');
+      }
     } catch (error) {
       console.log('error occured!!');
       console.dir(error);
@@ -184,6 +185,24 @@ const ReviewerList = () => {
             </button>
           </div>
         </section>
+
+        {alertMsg && (
+          <div className="fixed top-0 bottom-0 left-0 right-0 bg-slate-400 backdrop-opacity-30" onClick={closeAlert}>
+            <div
+              className="w-96 h-96 bg-slate-100 relative inset-2/4 translate-x-[-50%] translate-y-[-50%]"
+              onClick={stopPropagation}
+            >
+              {alertMsg}
+              <button
+                className='type="button"
+                className="w-fit h-16 px-12 bg-[#FB2E86] text-[#FFFFFF] text-xl rounded font-josefin"'
+                onClick={closeAlert}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );
