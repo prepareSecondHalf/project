@@ -1,9 +1,8 @@
-import { NextPage } from 'next';
+import { NextPage } from "next";
 
 const Footer: NextPage = () => {
-
   return (
-    <div className="w-full mt-[200px]">
+    <div className="w-full mt-[100px]">
       <div className="w-full h-fit bg-[#eeeffb] flex justify-center flex-col">
         <div className="w-full flex justify-center">
           <div className="w-default px-0 py-14 flex justify-between">

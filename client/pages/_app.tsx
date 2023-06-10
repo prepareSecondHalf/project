@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import Script from "next/script";
 import "styles/globals.css";
+import { SessionProvider } from "next-auth/react";
 
 // React-Query Setting
 const client = new QueryClient();
@@ -18,9 +19,10 @@ export default function App({ Component, pageProps }: AppProps) {
         type="text/javascript"
         src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
       />
-      <Component {...pageProps} />
-      <ReactQueryDevtools />
-      {/* <ReactQueryDevtools initialIsOpen={true} /> */}
+      <SessionProvider session={pageProps.session}>
+        <Component {...pageProps} />
+      </SessionProvider>
+      <ReactQueryDevtools /> {/* <ReactQueryDevtools initialIsOpen={true} /> */}
     </QueryClientProvider>
   );
 }
