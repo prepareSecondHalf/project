@@ -144,7 +144,7 @@ const Chat: NextPage = () => {
                                     <div className="font-semibold">
                                         {item.ownername}{' '}
                                         <span className="font-normal text-gray-500 text-sm">
-                                            {item.chats[0].message}
+                                            {item.chats[0]?.message}
                                         </span>
                                     </div>
                                 </div>
