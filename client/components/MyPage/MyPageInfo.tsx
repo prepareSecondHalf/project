@@ -53,10 +53,6 @@ const getProfile = async () => {
             console.log("???")
             return res.user;
         }
-        // try {
-        // } catch(err) {
-            
-        // }
     }
 }
 

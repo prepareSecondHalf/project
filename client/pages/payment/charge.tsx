@@ -1,7 +1,9 @@
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from 'react-query';
+import { IFcMyInformation } from 'interface/MyPage/IFcMyPageInfo';
 import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from 'interface/IFcPayment';
+import { IFcChargeCash } from 'interface/Cash/cash';
 import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
 import { Apis } from 'utils/api';
@@ -97,15 +99,22 @@ dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 h-[48px] tex
 //     }
 // }
 
+
+const chargeCashAPi = async (param: IFcChargeCash) => {
+    await Apis.post("/cash/charge", param).then(res => {
+        window.location.href = "/"
+    });
+}
+
 const Charge: NextPage = () => {
 
-    // const chargeMutation = useMutation();
+    const chargeMutation = useMutation(chargeCashAPi);
 
     const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(paymentInitialState);
     const [tempCach, setTempCash] = useState<number>(0);
     const [chargeCash, setChargeCash] = useState<string>('0');
     const qClient = useQueryClient();
-    const data = qClient.getQueryData('getProfile');
+    const data = qClient.getQueryData('getProfile') as IFcMyInformation;
     const state = qClient.getQueryState('getProfile');
 
     if (state && state.error) {
@@ -113,7 +122,6 @@ const Charge: NextPage = () => {
     }
 
     const handlePaymentType = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(data);
         let radioEl = e.currentTarget.childNodes[0] as HTMLInputElement;
         radioEl.click();
         const payMethod = e.currentTarget.dataset.fieldName;
@@ -154,25 +162,30 @@ const Charge: NextPage = () => {
 
     const onChargeCash = () => {
         const { IMP } = window;
-        IMP?.init('imp23735785');
-        const amount: number = Number(numberReg(chargeCash));
-        paymentInfo.amount = amount;
-
-        console.warn(numberReg(chargeCash), " : numberReg(chargeCash)");
-        console.warn(paymentInfo, " : paymentInfo");
-        const data = paymentInfo;
-
-        const callback = (response: RequestPayResponse) => {
-            const { success, merchant_uid, error_msg, imp_uid, error_code } = response
-            if (success) {
-                console.log(response)
-
-            } else {
-                console.log(response)
-                alert("결제 실패!")
+        if (data && IMP) {
+            IMP.init('imp23735785');
+            const amount: number = Number(numberReg(chargeCash));
+            paymentInfo.amount = amount;
+    
+            console.warn(numberReg(chargeCash), " : numberReg(chargeCash)");
+            console.warn(paymentInfo, " : paymentInfo");
+            const paymentData = paymentInfo;
+    
+            const callback = (res: RequestPayResponse) => {
+                console.log(res)
+                const { success, merchant_uid, error_msg, imp_uid, error_code } = res;
+                if (success) {
+                    const mutateData = {
+                        userid: data._id, amount: res.paid_amount, payment: res.pay_method
+                    };
+                    
+                    chargeMutation.mutate(mutateData);
+                } else {
+                    alert("결제 실패!")
+                }
             }
+            window.IMP?.request_pay(paymentData, callback);
         }
-        window.IMP?.request_pay(data, callback)
     }
 
     return (
