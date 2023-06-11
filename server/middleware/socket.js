@@ -1,4 +1,5 @@
 const SocketIO = require('socket.io');
+
 const { Chat } = require('../models/chat');
 const { ChatRoom } = require('../models/chatRoom');
 const moment = require('moment');
@@ -30,10 +31,16 @@ module.exports = (server) => {
                     else
                         io.emit('getAllChatRoom', {
                             success: true,
-                            rooms: rooms.map((item) => {
+                            rooms: rooms.map((item, idx) => {
                                 return {
                                     roomId: item.roomId,
                                     owner: item.owner,
+                                    ownername:
+                                        idx === 0
+                                            ? '김승규'
+                                            : idx === 1
+                                            ? '이정환'
+                                            : '문희수',
                                     chats: item.chats,
                                 };
                             }),
@@ -75,11 +82,10 @@ module.exports = (server) => {
             const newChat = new Chat({
                 roomId: info.roomId,
                 user: info.userId,
+                creator: info.username,
                 message: info.msg,
             });
-            newChat.save();
-
-            console.log('here');
+            await newChat.save();
 
             await ChatRoom.findOneAndUpdate(
                 { roomId: info.roomId },
@@ -89,7 +95,6 @@ module.exports = (server) => {
                     },
                 },
             );
-            console.log('here2');
 
             io.emit('sendMsg', newChat);
         });
