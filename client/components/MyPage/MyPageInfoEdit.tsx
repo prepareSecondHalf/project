@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NextPage } from "next";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
@@ -8,7 +8,7 @@ import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInfoUpdateRequest, IFcMyInfoResponse } from 'interface/MyPage/IFcMyPageInfo';
 
 // Util
-import { setAuthToken, setHeaderAuth, removeAuthToken, getToken } from "utils/loginAuth";
+import { setAuthToken, setHeaderAuth, removeAuthToken } from "utils/loginAuth";
 import { Apis } from "utils/api";
 import axios, { AxiosError } from "axios";
 
@@ -25,7 +25,7 @@ const getProfile = async () => {
     }
 }
 
-const token = getToken();
+let token: string|null = '';
 
 const userData: IFcMyInfoUpdateRequest = {
     userid: '',
@@ -66,6 +66,10 @@ const MyPageInfo: NextPage = () => {
     //         }
     //     }
     // });
+
+    useEffect(() => {
+        token = localStorage.getItem("token");
+    }, [])
 
     const qClient = useQueryClient();
     const data = qClient.getQueryData('getProfile') as IFcMyInfoResponse;

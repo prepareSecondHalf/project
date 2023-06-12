@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from 'react-query';
-import { IFcMyInformation } from 'interface/MyPage/IFcMyPageInfo';
+import { IFcMyInfoResponse, IfcMyCashChargeRequest } from 'interface/MyPage/IFcMyPageInfo';
 import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from 'interface/IFcPayment';
 import { IFcChargeCash } from 'interface/Cash/cash';
 import { ChargeContainer } from 'styles/myPage/PaymentStyled';
@@ -114,7 +114,7 @@ const Charge: NextPage = () => {
     const [tempCach, setTempCash] = useState<number>(0);
     const [chargeCash, setChargeCash] = useState<string>('0');
     const qClient = useQueryClient();
-    const data = qClient.getQueryData('getProfile') as IFcMyInformation;
+    const data = qClient.getQueryData('getProfile') as IFcMyInfoResponse;
     const state = qClient.getQueryState('getProfile');
 
     if (state && state.error) {
@@ -174,9 +174,9 @@ const Charge: NextPage = () => {
             const callback = (res: RequestPayResponse) => {
                 console.log(res)
                 const { success, merchant_uid, error_msg, imp_uid, error_code } = res;
-                if (success) {
-                    const mutateData = {
-                        userid: data._id, amount: res.paid_amount, payment: res.pay_method
+                if (success && res.pay_method && data._id) {
+                    const mutateData: IFcChargeCash = {
+                        userid: data._id, amount: Number(res.paid_amount), payment: res.pay_method
                     };
                     
                     chargeMutation.mutate(mutateData);

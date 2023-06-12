@@ -116,7 +116,7 @@ router.post('/login', (req, res) => {
       jwt.sign(
         { id: user.id },
         JWT_SECRET,
-        { expiresIn: '1h' },
+        { expiresIn: '2h' },
         (err, token) => {
           if (err) return res.status(400).json({ success: false, msg: err });
 
@@ -155,7 +155,8 @@ const authenticateToken = (req, res, next) => {
       //   message: 'expired',
       //   status: 403
       // });
-      return res.sendStatus(403);
+      // return res.sendStatus(403);
+      return res.status(403).json({ success: false, msg: 'expired' });
     }
 
     // Token is valid, store the user object in the request for further processing

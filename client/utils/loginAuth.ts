@@ -12,10 +12,6 @@ export const removeAuthToken = (token: string) => {
     if (typeof window !== undefined) localStorage.removeItem("token");
 }
 
-export const getToken = () => {
-    return jwtAuthToken;
-}
-
 export const setHeaderAuth = () => {
     if (jwtAuthToken) Apis.setTokenHeader(jwtAuthToken);
     else Apis.removeToken(jwtAuthToken);

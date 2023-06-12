@@ -1,4 +1,4 @@
-// import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
@@ -8,7 +8,7 @@ import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInformation, IFcMyRequestHistory, IFcMyActivityHistory, IFcWishList } from 'interface/MyPage/IFcMyPageInfo';
 
 // Util
-import { setAuthToken, setHeaderAuth, removeAuthToken, getToken } from "utils/loginAuth";
+import { setAuthToken, setHeaderAuth, removeAuthToken } from "utils/loginAuth";
 import { Apis } from "utils/api";
 import axios, { AxiosError } from "axios";
 
@@ -50,36 +50,39 @@ const getProfile = async () => {
             setHeaderAuth();
 
             const res = await Apis.get('/user-tmp/myprofile');
-            console.log("???")
+            
             return res.user;
         }
     }
 }
 
-const token = getToken();
+let token: string|null = '';
 
 const MyPageInfo: NextPage = () => {
 
-    const { data, isSuccess, error } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
-        cacheTime: Infinity,
+    const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
+        cacheTime: 3600,
         staleTime: 3600,
-        onError: (err: AxiosError) => {
-            // console.log(err.toJSON(), " !!!!")
-            if (axios.isAxiosError(err)) {
-                if (err.response?.status === 403 && token) {
-                    alert('시간이 만료되어 로그아웃 되었습니다. 다시 로그인 해주세요.');
-                    removeAuthToken(token);
-                    if (typeof window !== undefined) window.location.reload();
-                } else {
-                    console.error(err, " : Profile get Error!!!");
-                }
-            }
-        }
+        retry: 1,
     });
 
-    // const [userRequestReview, setUserRequestReview] = useState<IFcMyRequestHistory[]>(initialRHData);
-    // const [userActivityHistory, setUseActivityHistory] = useState<IFcMyActivityHistory[]>(initialAHDAta);
-    // const [userWishList, setUseWishList] = useState<IFcWishList[]>(initialWLData);
+    if (isError) {
+        if (axios.isAxiosError(error)) {
+            if (error.response && error.response.status === 403 && token) {
+                alert('시간이 만료되어 로그아웃 되었습니다. 다시 로그인 해주세요.');
+                removeAuthToken(token);
+                if (typeof window !== undefined) window.location.reload();
+            } else {
+                console.error(error, " : Profile get Error!!!");
+            }
+        } else {
+            console.warn(error, " : !!!!")
+        }
+    }
+
+    useEffect(() => {
+        token = localStorage.getItem("token");
+    }, [])
 
     return (
         <>
