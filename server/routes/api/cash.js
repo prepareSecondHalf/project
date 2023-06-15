@@ -7,10 +7,11 @@ const router = express.Router();
 // 캐시충전내역 저장
 router.post('/cash/charge', (req, res) => {
     const { userid, amount } = req.body;
-
+    console.log("casg ub?")
     if (!userid) {
         return res.status(400).json({ success: false, msg: '로그인 후 이용하실 수 있습니다.' });
     } else {
+        console.log("conditional charge is in?")
         UserTmp.findOne({ userid }).then((user) => {
             if (user) {
                 user.amount = amount;

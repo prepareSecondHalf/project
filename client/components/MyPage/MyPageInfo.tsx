@@ -12,37 +12,6 @@ import { setAuthToken, setHeaderAuth, removeAuthToken } from "utils/loginAuth";
 import { Apis } from "utils/api";
 import axios, { AxiosError } from "axios";
 
-const initialRHData: IFcMyRequestHistory[] = [
-    {
-        title: '리뷰 신청 내역 제목',
-    },
-    {
-        title: '리뷰 신청 내역 2',
-    },
-];
-
-const initialAHDAta: IFcMyActivityHistory[] = [
-    {
-        title: '리뷰어 활동 내역1',
-    },
-    {
-        title: '리뷰어 활동 내역2',
-    },
-    {
-        title: '리뷰어 활동 내역3',
-    },
-    {
-        title: '리뷰어 활동 내역4',
-    },
-    {
-        title: '리뷰어 활동 내역5',
-    },
-];
-
-const initialWLData: IFcWishList[] = [
-    
-];
-
 const getProfile = async () => {
     if (typeof window !== undefined) {
         if (window.localStorage.getItem("token")) {

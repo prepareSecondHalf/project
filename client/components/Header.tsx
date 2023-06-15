@@ -31,10 +31,10 @@ const menus = [
 		path: '네비게이션!!',
 		content: '네비게이션!!',
 	},
-];
+]
 
 const Header: NextPage = () => {
-
+	
 	return (
 		<>
 			{/* {isShow ? */}
