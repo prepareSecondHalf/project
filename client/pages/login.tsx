@@ -242,7 +242,17 @@ const Login: NextPage = () => {
     if (!email || !password) {
       return alert("이메일 또는 패스워드를 확인해주세요");
     } else {
-      logInMutation.mutate({ email: email, password: password });
+      logInMutation.mutate(
+        { email: email, password: password },
+        {
+          onSuccess: (data, variables, context) => {
+            console.log("handleLogIn@@@@@@@@@@onSuccess");
+          },
+          onError: (error, variables, cotext) => {
+            console.log("handleLogIn!!!!!!onError");
+          },
+        }
+      );
     }
   };
 

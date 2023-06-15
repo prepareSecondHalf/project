@@ -1,8 +1,9 @@
 import { NextPage } from "next";
 import Link from "next/link";
-import { useMutation } from "react-query";
+import { useQuery } from "react-query";
 import { Apis } from "utils/api";
 import { useEffect } from "react";
+import axios from "axios";
 
 const menus = [
   {
@@ -33,6 +34,17 @@ const menus = [
 ];
 
 const Header: NextPage = () => {
+  const { isLoading, error, data } = useQuery("loginStaus", async () => {
+    const result = await Apis.get("http://localhost:8080/api/user/auth");
+    console.log("result>>>>>>>", result);
+  });
+
+  console.log("Header is mounted0");
+  useEffect(() => {
+    if (typeof window !== undefined) {
+      console.log("Console log Test !");
+    }
+  }, []);
   // useEffect(() => {
   //   const getToken = window.localStorage.getItem("token");
   //   const getEmail = window.localStorage.getItem("email");
