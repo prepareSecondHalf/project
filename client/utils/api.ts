@@ -5,11 +5,12 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json; charset=UTF-8",
     accept: "application/json",
+    // withCredentials: true,
   },
 });
 
 export const Apis = {
-  get: (url: string) => api.get(url).then((res: any) => res.data),
-  post: (url: string, payload: any) =>
-    api.post(url, payload).then((res: any) => res.data),
+  get: (url: string, payload: any) => api.get(url).then((res: any) => res.data),
+  post: (url: string, payload: any, options?: any) =>
+    api.post(url, payload, options).then((res: any) => res.data),
 };

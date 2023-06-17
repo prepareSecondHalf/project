@@ -81,20 +81,29 @@ app.post("/api/user/register", async (req, res) => {
 });
 
 app.post("/api/user/login", async (req, res) => {
-  console.log("[/api/user/login] >>>> ", req.body);
+  console.log("[/api/user/login]1 >>>> ", req.body.userInfo);
 
   // 요청된 이메일을 DB에서 찾기
   await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/api/user/login] >>>> ", userInfo);
-    if (!userInfo)
+    console.log("[/api/user/login]2 >>>> ", userInfo);
+
+    if (req.body.userInfo.password === "GooglePasswordNotSet") {
+      return res.status(200).json({
+        loginSuccess: true,
+        message: "Google Social Login Success",
+      });
+    }
+    if (!userInfo) {
       return res.status(403).json({
         loginSuccess: false,
         message: "제공된 이메일에 해당하는 유저가 없습니다.",
       });
+    }
     // 요청된 이메일이 DB에 있다면 비밀번호가 맞는지 확인
     userInfo.comparePassword(req.body.userInfo.password, (err, isMatch) => {
       // userInfo.comparePassword("password123", (err, isMatch) => {
       console.log("isMatch", isMatch);
+      console.log("isMatch", req.body.userInfo);
       console.log("isMatch", req.body.userInfo.password);
 
       if (!isMatch)
@@ -105,28 +114,65 @@ app.post("/api/user/login", async (req, res) => {
 
       // 비밀번호까지 맞다면 토큰 생성하기
       userInfo.generateToken((err, user) => {
+        // console.log("[generateToken]<<<<<<<<<<<<<<<<<<<<<<<<<", user);
+        console.log("[generateToken]<<<<<<<<<<<<<<<<<<<<<<<<<", userInfo);
+        // console.log("[generateToken]>>>", user.token);
+        // res.cookie("x_auth", user.token).status(200).json({
         res.cookie("x_auth", userInfo.token).status(200).json({
           loginSuccess: true,
-          userId: userInfo._id,
-          email: userInfo.email,
-          password: userInfo.password,
+          user: userInfo,
+          // email: userInfo.email,
+          // password: userInfo.password,
+          // cookie: userInfo.cookie,
         });
+
+        console.log(
+          "[generateToken]x_auth<<<<<<<<<<<<<<<<<<<<<<<<<",
+          res.cookie
+        );
       });
     });
   });
+  // console.log("[/api/user/login] >>>> ", res);
 });
 
 app.post("/api/user/logout", auth, async (req, res) => {
+  console.log("[/api/user/logout1]@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
   await User.findOneAndUpdate({ _id: req.user._id }, { token: "" })
     // await User.findOneAndUpdate({ email: req.user.email }, { token: "" })
     .then((user) => {
-      return res.status(200).send({
+      console.log(
+        "[/api/user/logout2]@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+      );
+      return res.clearCookie("x_auth").status(200).send({
         success: true,
       });
     })
     .catch((err) => {
       res.json({ success: false, err });
     });
+});
+
+// role 0 : 일반 유저
+// role 1 : 어드민
+// role 2 : 특정 부서 어드민
+// backtick 쓰면 에러
+app.get("/api/user/auth", auth, (req, res) => {
+  // 여기 미들웨어(auth)까지 통과했다는 것은 authentication이 true라는 말
+  console.log("[/api/user/auth1]", req.body); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
+  console.log("[/api/user/auth2]", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
+  // console.log("auth", res.cookies);
+
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: req.user.email,
+    birth: req.user.birth,
+    phone_number: req.user.phone_number,
+    role: req.user.role,
+    cookie: req.cookies.x_auth,
+  });
 });
 
 app.post("/api/user/dropMember", async (req, res) => {
@@ -143,27 +189,6 @@ app.post("/api/user/dropMember", async (req, res) => {
     // User.deleteOne({ _id: "64845f48611660a23752792f" });
     // User.deleteOne({ email: userInfo.email });
     // User.deleteOne("64845f48611660a23752792f");
-  });
-});
-
-// role 0 : 일반 유저
-// role 1 : 어드민
-// role 2 : 특정 부서 어드민
-// backtick 쓰면 에러
-app.get("/api/user/auth", auth, (req, res) => {
-  // 여기 미들웨어(auth)까지 통과했다는 것은 authentication이 true라는 말
-  console.log("auth", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
-  // console.log("auth", res.cookies);
-
-  res.status(200).json({
-    _id: req.user._id,
-    isAdmin: req.user.role === 0 ? false : true,
-    isAuth: true,
-    email: req.user.email,
-    birth: req.user.birth,
-    phone_number: req.user.phone_number,
-    role: req.user.role,
-    cookie: req.cookies.x_auth,
   });
 });
 

@@ -42,6 +42,15 @@ const GoogleBtn = styled.button`
   align-items: center;
   margin-top: 10px;
 `;
+const LogOutBtn = styled.button`
+  width: 432px;
+  height: 57px;
+  border-radius: 3px;
+  background: #fb2e86;
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 10px;
+`;
 const LogInBtn = styled.button`
   width: 432px;
   height: 57px;
@@ -57,10 +66,11 @@ const BtnWrap = styled.div`
   align-items: center;
   flex-direction: column;
 `;
-
 interface loginParam {
   email: string;
   password: string;
+  type: string;
+  cookies?: string;
 }
 
 const Login: NextPage = () => {
@@ -68,15 +78,67 @@ const Login: NextPage = () => {
   const [password, setPassword] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoggedOut, setIsLoggedOut] = useState<boolean>(true);
+  const [loginType, setLoginType] = useState<string>("");
 
+  const { status, data } = useSession();
+  const router = useRouter();
+
+  // 로그인 유지 Hooks
+  useEffect(() => {
+    console.log("useEffect Started");
+
+    const getToken = window.localStorage.getItem("token");
+    const getCookie = document.cookie.slice(7);
+
+    console.log("useEffect[getToken]", getToken);
+    console.log("useEffect[getCookie]", getCookie);
+    console.log("useEffect[window]", window);
+    console.log("useEffect[google1]", status);
+
+    if (window && getCookie) {
+      console.log("쿠키 로그인 유지 상태");
+      setIsLoggedIn(true);
+      setIsLoggedOut(false);
+    }
+  }, []);
+
+  // 구글 로그인 Hooks
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated") {
+      console.log("[google authenticated]", status, data);
+      console.log("구글 로그인 유지 상태");
+      setEmail(data.user?.email);
+      setPassword("GooglePasswordNotSet");
+      logInMutation.mutate({
+        email: data.user?.email,
+        password: "GooglePasswordNotSet",
+        type: "logIn",
+        cookie: "GooglePasswordNotSet",
+      });
+
+      setLoginType("google");
+      setIsLoggedIn(true);
+      setIsLoggedOut(false);
+    }
+  }, [status]);
+
+  // [useMutation] => 데이터를 생성, 업데이트, 삭제 혹은 서버 사이드 이펙트를 수행
   const logOutMutation = useMutation(
+    "logOutMutation",
     (userInfo: loginParam) => Apis.post("/user/logout", { userInfo }),
     {
       onMutate: (variable) => {
-        console.log("onmutate", variable);
+        console.log("[logOutMutation]onmutate", variable);
       },
       onSuccess: async (res) => {
-        console.log("res:::", res);
+        document.cookie =
+          "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
+        console.log("[logOutMutation]res:::", res);
+
+        // setEmail("");
+        // setPassword("");
         setIsLoggedIn(false);
         setIsLoggedOut(true);
       },
@@ -86,122 +148,94 @@ const Login: NextPage = () => {
     }
   );
 
+  // [useMutation] => 데이터를 생성, 업데이트, 삭제 혹은 서버 사이드 이펙트를 수행
   const logInMutation = useMutation(
-    "loginStaus",
-    (userInfo: loginParam) => Apis.post("/user/login", { userInfo }),
+    "logInMutation",
+    (userInfo: loginParam) =>
+      // Apis.post("/user/login", { userInfo }),
+      Apis.post("/user/login", { userInfo }, { withCredentials: true }),
     {
-      onMutate: (variable) => {
-        console.log("onmutate", variable);
-        // console.log("logInMutation4444444444", logInMutation);
-
-        setEmail(variable.email);
-        // setPassword(variable.password);
-        setPassword("password123");
-      },
+      // onMutate: (variable) => {
+      //   console.log("[logInMutation]onmutate", variable);
+      //   // setEmail(variable.email);
+      //   // setPassword(variable.password);
+      //   // setPassword("password123");
+      // },
       onSuccess: async (res) => {
         console.log("로그인 성공", res);
         setIsLoggedIn(true);
         setIsLoggedOut(false);
-        setAuthToken(res.userId, res.email);
+        // setAuthToken(res.userId, res.email);
       },
       onError: (error) => {
         console.log("로그인 실패", error);
-        // alert(
-        //   "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
-        // );
+        alert(
+          "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
+        );
       },
     }
   );
 
-  // const logInMutation = useMutation(
-  //   "loginStaus",
-  //   (userInfo: loginParam) => Apis.post("/user/login", { userInfo }),
-  //   {
-  //     onMutate: (variable) => {
-  //       console.log("onmutate", variable);
-  //       // console.log("logInMutation4444444444", logInMutation);
-
-  //       setEmail(variable.email);
-  //       // setPassword(variable.password);
-  //       setPassword("password123");
-  //     },
-  //     onSuccess: async (res) => {
-  //       console.log("로그인 성공", res);
-  //       setIsLoggedIn(true);
-  //       setIsLoggedOut(false);
-  //       setAuthToken(res.userId, res.email);
-  //     },
-  //     onError: (error) => {
-  //       console.log("로그인 실패", error);
-  //       // alert(
-  //       //   "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
-  //       // );
-  //     },
-  //   }
-  // );
-
-  const dropMemberMutation = useMutation(
-    "dropMember",
-    (userInfo: loginParam) => Apis.post("/user/dropMember", { userInfo }),
-    {
-      onMutate: (variable) => {
-        console.log("onmutate", variable);
-      },
-      onSuccess: async (res) => {
-        console.log("로그인 성공", res);
-        setAuthToken("", "");
-      },
-      onError: (error) => {
-        console.log("로그인 실패", error);
-      },
-    }
-  );
-  // console.log("logInMutation111111111", logInMutation);
-
-  const { status, data } = useSession();
-  const router = useRouter();
-  useEffect(() => {
-    console.log("google", status, data);
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      setIsLoggedIn(true);
-      setIsLoggedOut(false);
-    }
-  }, [status]);
-
-  useEffect(() => {
-    // console.log("logInMutation2222222", logInMutation);
-
-    const getToken = window.localStorage.getItem("token");
-    const getEmail = window.localStorage.getItem("email");
-
-    // console.log("useEffect2>>>>>", getToken);
-    // console.log("useEffect3>>>>>", getEmail);
-    // console.log("useEffect4>>>>>", logInMutation);
-    // console.log("logInMutation33333333333", logInMutation);
-
-    if (typeof window !== undefined && getToken !== null) {
-      // console.log("getEmail, getToken");
-      // console.log(getEmail, getToken);
-
-      if (getEmail !== null && getToken !== null) {
-        // alert(`로그인을 시작합니다. (계정 : ${getEmail})`);
-
-        logInMutation.mutate({ email: getEmail, password: getToken });
-        setIsLoggedIn(true);
-        setIsLoggedOut(false);
-      }
+  // 일반 로그인 기능
+  const handleLogIn = (type: string) => {
+    console.log(
+      "handleLogin>>>>>>>",
+      email,
+      password,
+      type,
+      document.cookie.slice(7)
+    );
+    setLoginType(type);
+    if (!email || !password) {
+      return alert("이메일 또는 패스워드를 확인해주세요");
     } else {
-      alert("else");
+      logInMutation.mutate(
+        {
+          email: email,
+          password: password,
+          type: "logout",
+          cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
+        },
+        {
+          onSuccess: (data, variables, context) => {},
+          onError: (error, variables, cotext) => {},
+        }
+      );
     }
-  }, []);
+  };
 
-  // if (logInMutation.isSuccess) {
-  // console.log(loginMutation)
-  // setAuthToken(logInMutation.data.token);
-  // }
+  // 로그아웃 기능
+  const handleLogOut = (type: string) => {
+    console.log("handleLogOut>>>>>>>", type, document.cookie.slice(7));
+    console.log("handleLogOut>>>>>>>", email, password);
 
+    if (type === "google") {
+      console.log("google logout...");
+      logOutMutation.mutate({
+        email: email,
+        password: password,
+        type: "logout",
+        cookies: "",
+      });
+      () => signOut();
+      setIsLoggedIn(false);
+    } else {
+      console.log("normal logout...");
+
+      logOutMutation.mutate({
+        email: email,
+        password: password,
+        type: "logout",
+        cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
+      });
+    }
+    setIsLoggedIn(false);
+    setIsLoggedOut(true);
+    setEmail("");
+    setPassword("");
+  };
+
+  // 회원 탈퇴 기능
   const handleDropMember = () => {
     console.log("dropMember>>>>>>>");
 
@@ -219,41 +253,6 @@ const Login: NextPage = () => {
     setEmail("");
     setPassword("");
     // router.push("/");
-  };
-
-  const handleLogOut = (type: string) => {
-    console.log("handleLogOut>>>>>>>", type);
-
-    if (type === "google") {
-      console.log("google logout...");
-      setIsLoggedIn(false);
-      () => signOut();
-    } else {
-      logOutMutation.mutate({ email: "", password: "" });
-    }
-    setIsLoggedIn(false);
-    setIsLoggedOut(true);
-    setEmail("");
-    setPassword("");
-  };
-
-  const handleLogIn = () => {
-    console.log("handleLogin>>>>>>>", email, password);
-    if (!email || !password) {
-      return alert("이메일 또는 패스워드를 확인해주세요");
-    } else {
-      logInMutation.mutate(
-        { email: email, password: password },
-        {
-          onSuccess: (data, variables, context) => {
-            console.log("handleLogIn@@@@@@@@@@onSuccess");
-          },
-          onError: (error, variables, cotext) => {
-            console.log("handleLogIn!!!!!!onError");
-          },
-        }
-      );
-    }
   };
 
   return (
@@ -297,7 +296,10 @@ const Login: NextPage = () => {
                     Don&apos;t have an Account?
                     <Link href="/signup">Create account</Link>
                   </RequestUserText>
-                  <LogInBtn onClick={handleLogIn} id="signin_btn">
+                  <LogInBtn
+                    onClick={() => handleLogIn("normal")}
+                    id="signin_btn"
+                  >
                     Log In
                   </LogInBtn>
 
@@ -320,15 +322,28 @@ const Login: NextPage = () => {
 
                 {/* button */}
                 <BtnWrap>
-                  <LogInBtn
-                    onClick={() => handleLogOut("google")}
+                  {loginType === "google" ? (
+                    <LogOutBtn
+                      onClick={() => signOut("google")}
+                      id="signout_btn"
+                    >
+                      구글 Logout
+                    </LogOutBtn>
+                  ) : (
+                    <LogOutBtn
+                      onClick={() => handleLogOut("normal")}
+                      id="signout_btn"
+                    >
+                      일반 Logout
+                    </LogOutBtn>
+                  )}
+
+                  <LogOutBtn
+                    onClick={() => handleDropMember()}
                     id="signout_btn"
                   >
-                    Logout
-                  </LogInBtn>
-                  <LogInBtn onClick={() => handleDropMember()} id="signout_btn">
                     회원탈퇴
-                  </LogInBtn>
+                  </LogOutBtn>
                 </BtnWrap>
                 <div className="request_user">
                   {/* <LogInBtn onClick={checkLogIn} id="signout_btn">

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrpt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    trim: true,
     minlength: 5,
   },
   birth: {
@@ -36,42 +37,59 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre("save", function (next) {
-  const user = this; // UserSchema 가리킴
-
+  let user = this; // UserSchema 가리킴
+  console.log("pre1>>>>", user);
+  // if (user.isModified("password") || user.isModified("token")) {
+  // > token이 생성되면서 password hashing이 새로 됨
+  // > 결국, 비밀번호끼리 불일치 현상 발생 (주의!!!)
   if (user.isModified("password")) {
     // 비밀번호 암호화 : bcrypt
-    bcrpt.genSalt(saltRounds, function (err, salt) {
+    console.log("pre2[isModified]>>>>", user);
+
+    bcrypt.genSalt(saltRounds, function (err, salt) {
       if (err) return next(err);
-      bcrpt.hash(user.password, salt, function (err, hash) {
+      bcrypt.hash(user.password, salt, function (err, hash) {
         if (err) return next(err);
         user.password = hash;
         next();
       });
     });
   } else {
+    console.log("pre3[NOTisModified]>>>>", user);
+
     next();
   }
 });
 
 UserSchema.methods.comparePassword = function (plainPassword, cb) {
-  bcrpt.compare(plainPassword, this.password, function (err, isMatch) {
+  let user = this;
+  // bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+  bcrypt.compare(plainPassword, user.password, function (err, isMatch) {
+    console.log("[comparePassword]plain>>", plainPassword);
+    // console.log("[comparePassword]this.password>>", this.password);
+    console.log("[comparePassword]user.password>>", user.password);
+    console.log("[comparePassword]isMatch", isMatch);
     if (err) return cb(err);
     cb(null, isMatch);
   });
 };
 
 UserSchema.methods.generateToken = function (cb) {
-  const user = this;
-
+  let user = this;
+  console.log("generateToken1>>>>>", user);
   // jsonwebtoken을 이용한 token 생성
-  const token = jwt.sign(user._id.toHexString(), "secretToken");
+  let token = jwt.sign(user._id.toHexString(), "secretToken");
 
   // user._id + 'secretToken' = token
   // ->
   // 'secretToken' => user._id
 
   user.token = token;
+  console.log("generateToken2>>>>>", user);
+
   user.save().then((err, user) => {
+    console.log("generateToken3>>>>>", user);
+
     // if (err) return res.status(400).send(err);
     if (err) return cb(err);
     cb(null, user);
@@ -92,14 +110,21 @@ UserSchema.methods.generateToken = function (cb) {
 
 UserSchema.statics.findByToken = function (token, cb) {
   const user = this;
+  console.log("findByToken1 >>>>>>>>", token);
 
   // 토큰 디코드
   jwt.verify(token, "secretToken", function (err, decoded) {
+    console.log("findByToken2 >>>>>>>>", token);
+    console.log("findByToken3 >>>>>>>>", decoded);
     // 유저 아이디를 이용해 유저를 찾은 다음
     // 클라이언트에서 가져온 토큰과 DB에 보관된 토큰이 일치하는지 확인
     // user.findOne({"email": decoded, "token": token})
     user
-      .findOne({ _id: decoded, token: token })
+      // .findOne({ _id: decoded, token: 'eyJhbGciOiJIUzI1NiJ9.NjQ4NDVmNDg2MTE2NjBhMjM3NTI3OTJm.-15hLo3n5VOrVWetNfjq9tWW8_ImWZNlOhn98Pfq4m4' })
+      .findOne({
+        _id: decoded,
+        token: token,
+      })
       .then((user) => {
         cb(null, user);
       })
