@@ -13,15 +13,16 @@ router.get('/', async (req, res) => {
       !!keyword
         ? {
             $or: [
-              { title: !!keyword && keyword },
-              { contents: !!keyword && keyword },
-              { creator: !!keyword && keyword },
-              { lang: keyword },
+              { title: { $regex: keyword } },
+              { contents: { $regex: keyword } },
+              { creator: { $regex: keyword } },
+              { lang: { $regex: keyword } },
             ],
           }
         : {}
     );
 
+    console.log('result:::', posts);
     return res.status(200).json({ posts });
   } catch (error) {
     console.log('error occured when getting posts');

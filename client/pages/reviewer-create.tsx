@@ -1,15 +1,12 @@
 /** hooks */
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-
-/** libs */
-import axios from 'axios';
-
+import { useQuery, useMutation } from 'react-query';
 /** types */
 import { IPost, ICreatePostReq } from 'interface/IFcPost';
-
-// 리액트쿼리 씁시다!
-// 만들어두고 추가적인 내용은
+/** utils */
+import { Apis } from 'utils/api';
+import PostBanner from 'components/PostBoard/PostBanner';
 
 const generateTempId = (): string => {
   return Math.random().toString();
@@ -23,27 +20,24 @@ const ReviewerList = () => {
   const [pricePerMin, setPricePerMin] = useState(0);
   const [alertMsg, setAlertMsg] = useState('');
   const [post, setPost] = useState<IPost>();
-
-  // 수정 시 불러오기
+  const router = useRouter();
+  // 수정 시에는 기존 데이터 불러오기
+  const { isLoading, error, data } = useQuery('post', () => Apis.get(`/post`));
+  const { mutate } = useMutation('post', () =>
+    Apis.post('/post', {
+      title,
+      contents,
+      register_date: new Date(),
+      lang: langs,
+      per_minute: pricePerMin,
+      creator: 'ksg',
+    })
+  );
   useEffect(() => {
-    let tempId = '';
-    // tempId = '6456fb0b4ee6e354c8fa206d';
-    if (!tempId) return;
-
-    const getPost = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/post/${tempId}`);
-        console.log('i got a reponse!', response);
-        if (response.status === 200) {
-          setPost(response?.data?.post);
-        }
-      } catch (error) {
-        console.log('error occured!!');
-        console.dir(error);
-      }
-    };
-    getPost();
-  }, []);
+    if (!!data && !!data.post) {
+      setPost(data.post);
+    }
+  }, [data]);
 
   const onChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -66,13 +60,10 @@ const ReviewerList = () => {
   const onChangePricePerMin = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPricePerMin(+event.target.value);
   };
-
   const closeAlert = () => {
     setAlertMsg('');
   };
   const stopPropagation = (event: React.MouseEvent<HTMLDivElement>) => event.stopPropagation();
-
-  const router = useRouter();
   const onSubmitForm = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
@@ -82,32 +73,25 @@ const ReviewerList = () => {
       return;
     }
 
-    const params: ICreatePostReq = {
-      title,
-      contents,
-      register_date: new Date(),
-      lang: langs,
-      per_minute: pricePerMin,
-      creator: 'ksg',
-    };
-
-    try {
-      console.log('where is response???');
-      const response = await axios.post('http://localhost:8080/api/post/', params);
-      console.log('this is response', response);
-      if (response.status === 200) {
-        router.push('http://localhost:3000/reviewer-list');
-      }
-    } catch (error) {
-      console.log('error occured!!');
-      console.dir(error);
-    }
+    mutate();
+    router.push('http://localhost:3000/reviewerlist');
   };
+
+  if (isLoading) return <div>L O A D I N G . . .</div>;
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+  if (data) {
+    console.log('i got data', data);
+  }
+
   return (
     <>
-      <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
-        <h1>Create a post</h1>
-      </section>
+      <PostBanner>
+        <h1>리뷰를 광고하세요</h1>
+      </PostBanner>
       <main className="w-full h-fit px-96 bg-[#ffffff]">
         <section className="flex justify-between items-center py-20 text-[#8A8FB9]">
           <div className="w-full px-20 py-20 bg-[#EEEFFB]">

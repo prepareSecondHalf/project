@@ -8,8 +8,9 @@ import { IPost } from 'interface/IFcPost';
 /** utils */
 import { Apis } from 'utils/api';
 import PostBanner from 'components/PostBoard/PostBanner';
+import Modal from './Modal';
 
-const ReviewerList = () => {
+const PostItemModal = () => {
   const [post, setPost] = useState<IPost>();
   const router = useRouter();
   const pid = (router.query.reviewerpost as string[])[1];
@@ -33,7 +34,7 @@ const ReviewerList = () => {
   }
 
   return (
-    <>
+    <Modal>
       <PostBanner>
         <h1>리뷰 상세입니당</h1>
       </PostBanner>
@@ -47,11 +48,11 @@ const ReviewerList = () => {
           </div>
         </section>
 
-        <Link href={`reviewerlist`}>뒤로가기</Link>
+        {/* <Link href={`reviewerlist`}>닫기</Link> */}
         <Link href={`reqreview`}>리뷰 신청하기</Link>
       </main>
-    </>
+    </Modal>
   );
 };
 
-export default ReviewerList;
+export default PostItemModal;
