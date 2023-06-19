@@ -4,6 +4,9 @@ import { useQuery } from "react-query";
 import { Apis } from "utils/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { error } from "console";
+import { isCommaListExpression } from "typescript";
+import { NoFallbackError } from "next/dist/server/base-server";
 
 const menus = [
   {
@@ -33,38 +36,60 @@ const menus = [
   },
 ];
 
+
 const Header: NextPage = () => {
   let [isCookie, setIsCookie] = useState(false);
+  const { data } = useQuery("logInMutation", async () =>  {
+    try {
+      const result = await axios.get("http://localhost:8080/api/user/auth", { withCredentials: true, staleTime: 1000 });
+      return result
+    } catch(err) {
+      throw err;
+    }
+  }); 
 
-  const { status, error, data } = useQuery("logInMutation", async () => {
-    // const result = await axios.get("http://localhost:8080/api/user/auth", {
-    //   withCredentials: true,
-    // });
-    console.log("result1>>>>>>>", document.cookie);
-    // console.log("result>>>>>>>", result);
-    // result.data.cookie ? setIsCookie(true) : setIsCookie(false);
-    document.cookie ? setIsCookie(true) : setIsCookie(false);
-  });
-
-  const { isSuccess } = useQuery("logOutMutation", async () => {
-    // const result = await axios.get("http://localhost:8080/api/user/auth", {
-    //   withCredentials: true,
-    // });
-    // console.log("result2>>>>>>>", result);
-    console.log("result2>>>>>>>", isSuccess, document.cookie);
-    // result.data.cookie ? setIsCookie(true) : setIsCookie(false);
-    document.cookie ? setIsCookie(true) : setIsCookie(false);
-  });
+  // let isCookie = false;
+  // if (data) {
+  //   console.log("length>>>>>>>>>", data);
+  //   if (String(data.data.cookies).length > 0) {
+  //     console.log('check@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+  //     // isCookie = true;
+  //   }
+  //   else {
+  //     console.log('check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  //     // isCookie = false;  
+  //   }
+  //   // else setIsCookie(false);
+  //   // console.log()
+  // } 
 
   useEffect(() => {
-    if (typeof window !== undefined) {
-      console.log("result2>>>>>>>", document.cookie);
-      let cookie = window.document.cookie;
-      cookie ? setIsCookie(true) : setIsCookie(false);
+    if (data) {
+      console.log("length>>>>>>>>>", data, data.data.cookie, String(data.data.cookie).length);
+      if ((data.data.cookie) !== undefined && String(data.data.cookie).length > 0) {
+        console.log('check@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        setIsCookie(true);
+      }
+      else {
+        console.log('check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', data)
+        setIsCookie(false);
+      }}
+  }, [data]);
 
-      console.log("Console log Test !", isCookie);
-    }
-  }, [isCookie]);
+  
+
+  // const logoutQuery = useQuery("logOutMutation", async () => {
+  //   try {
+  //     const result = await axios.get("http://localhost:8080/api/user/auth", { withCredentials: true });
+  //     return result;
+  //   } catch(err) {
+  //     throw err;
+  //     // const logoutCookie = logoutQuery.data.data.cookie ? logoutQuery.data.data.cookie : null;
+  //   }
+  // });
+  // console.log("loginQuery1>>>>>>>", loginQuery);
+  // console.log("logoutQuery2>>>>>>>", logoutQuery, '\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
+
 
   return (
     <div className="w-full h-fit box-border sticky top-[-44px] z-[1] shadow-md">

@@ -9,7 +9,14 @@ import "styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 
 // React-Query Setting
-const client = new QueryClient();
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ✅ globally default to 2 seconds
+      staleTime: 1000 * 1,
+    },
+  },
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

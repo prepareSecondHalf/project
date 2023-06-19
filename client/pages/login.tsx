@@ -76,105 +76,74 @@ interface loginParam {
 const Login: NextPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [isLoggedOut, setIsLoggedOut] = useState<boolean>(true);
+  // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  // const [isLoggedOut, setIsLoggedOut] = useState<boolean>(true);
   const [loginType, setLoginType] = useState<string>("");
 
   const { status, data } = useSession();
   const router = useRouter();
 
-  // 로그인 유지 Hooks
-  useEffect(() => {
-    console.log("useEffect Started");
+    // [useMutation] => 데이터를 생성, 업데이트, 삭제 혹은 서버 사이드 이펙트를 수행
+    const logInMutation:unknown = useMutation("logInMutation", (userInfo: loginParam) => Apis.post("/user/login", { userInfo }, { withCredentials: true }));
+    const logOutMutation:unknown = useMutation("logOutMutation", (userInfo: loginParam) => Apis.post("/user/logout", { userInfo }, { withCredentials: true }));
+    // console.log("logInMutation>>>", logInMutation);
+    // console.log("logOutMutation>>>", logOutMutation);
 
-    const getToken = window.localStorage.getItem("token");
-    const getCookie = document.cookie.slice(7);
-
-    console.log("useEffect[getToken]", getToken);
-    console.log("useEffect[getCookie]", getCookie);
-    console.log("useEffect[window]", window);
-    console.log("useEffect[google1]", status);
-
-    if (window && getCookie) {
-      console.log("쿠키 로그인 유지 상태");
-      setIsLoggedIn(true);
-      setIsLoggedOut(false);
+    if (logInMutation.isSuccess === true) {
+      console.log("로그인 성공", logInMutation.variables);
+      // setIsLoggedIn(true);
+      // setIsLoggedOut(false);
+    } else if (logInMutation.isError === true) {
+      console.log("로그인 실패", logInMutation.error);
+      alert(
+        "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
+      );
     }
-  }, []);
+    
+    if (logOutMutation.isSuccess === true) {
+      document.cookie = "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
 
-  // 구글 로그인 Hooks
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      console.log("[google authenticated]", status, data);
-      console.log("구글 로그인 유지 상태");
-      setEmail(data.user?.email);
-      setPassword("GooglePasswordNotSet");
-      logInMutation.mutate({
-        email: data.user?.email,
-        password: "GooglePasswordNotSet",
-        type: "logIn",
-        cookie: "GooglePasswordNotSet",
-      });
+      console.log("로그아웃 성공", logOutMutation.variables);
+      // setIsLoggedIn(false);
+      // setIsLoggedOut(true);
+    } else if (logOutMutation.isError === true) {
+      console.log("로그아웃 실패", logOutMutation.error);
+    }
+
+    // 로그인 유지 Hooks
+    useEffect(() => {
+      console.log("useEffect Started");
+      const getToken = window.localStorage.getItem("token");
+      const getCookie = document.cookie.slice(7);
+
+      if (window && getCookie) {
+        console.log("쿠키 로그인 유지 상태");
+        // setIsLoggedIn(true);
+        // setIsLoggedOut(false);
+      }
+    }, []);
+
+    // 구글 로그인 Hooks
+    useEffect(() => {
+      if (status === "unauthenticated") {
+        router.push("/login");
+      } else if (status === "authenticated") {
+        console.log("구글 로그인 유지 상태", status, data);
+        setEmail(data.user?.email);
+        setPassword("GooglePasswordNotSet");
+
+        logInMutation.mutate({
+          email: data.user?.email,
+          password: "GooglePasswordNotSet",
+          type: "googleLogIn",
+          cookie: "GoogleCookie",
+        });
 
       setLoginType("google");
-      setIsLoggedIn(true);
-      setIsLoggedOut(false);
+      // setIsLoggedIn(true);
+      // setIsLoggedOut(false);
     }
   }, [status]);
-
-  // [useMutation] => 데이터를 생성, 업데이트, 삭제 혹은 서버 사이드 이펙트를 수행
-  const logOutMutation = useMutation(
-    "logOutMutation",
-    (userInfo: loginParam) => Apis.post("/user/logout", { userInfo }),
-    {
-      onMutate: (variable) => {
-        console.log("[logOutMutation]onmutate", variable);
-      },
-      onSuccess: async (res) => {
-        document.cookie =
-          "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
-        console.log("[logOutMutation]res:::", res);
-
-        // setEmail("");
-        // setPassword("");
-        setIsLoggedIn(false);
-        setIsLoggedOut(true);
-      },
-      onError: (error) => {
-        console.log("로그아웃 실패", error);
-      },
-    }
-  );
-
-  // [useMutation] => 데이터를 생성, 업데이트, 삭제 혹은 서버 사이드 이펙트를 수행
-  const logInMutation = useMutation(
-    "logInMutation",
-    (userInfo: loginParam) =>
-      // Apis.post("/user/login", { userInfo }),
-      Apis.post("/user/login", { userInfo }, { withCredentials: true }),
-    {
-      // onMutate: (variable) => {
-      //   console.log("[logInMutation]onmutate", variable);
-      //   // setEmail(variable.email);
-      //   // setPassword(variable.password);
-      //   // setPassword("password123");
-      // },
-      onSuccess: async (res) => {
-        console.log("로그인 성공", res);
-        setIsLoggedIn(true);
-        setIsLoggedOut(false);
-        // setAuthToken(res.userId, res.email);
-      },
-      onError: (error) => {
-        console.log("로그인 실패", error);
-        alert(
-          "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
-        );
-      },
-    }
-  );
 
   // 일반 로그인 기능
   const handleLogIn = (type: string) => {
@@ -195,10 +164,6 @@ const Login: NextPage = () => {
           password: password,
           type: "logout",
           cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
-        },
-        {
-          onSuccess: (data, variables, context) => {},
-          onError: (error, variables, cotext) => {},
         }
       );
     }
@@ -214,11 +179,16 @@ const Login: NextPage = () => {
       logOutMutation.mutate({
         email: email,
         password: password,
-        type: "logout",
-        cookies: "",
+        type: "googleLogout",
+        cookies: null,
       });
-      () => signOut();
-      setIsLoggedIn(false);
+      document.cookie = "x_auth = GoogleCookie; max-age=0";
+      console.log("handleLogOut&&&&&&&&&&&&&&&&&&&&&&&&&");
+
+
+      // () => signOut();
+
+      // setIsLoggedIn(false);
     } else {
       console.log("normal logout...");
 
@@ -229,8 +199,8 @@ const Login: NextPage = () => {
         cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
       });
     }
-    setIsLoggedIn(false);
-    setIsLoggedOut(true);
+    // setIsLoggedIn(false);
+    // setIsLoggedOut(true);
     setEmail("");
     setPassword("");
   };
@@ -248,8 +218,8 @@ const Login: NextPage = () => {
         // router.push("/login");
       })
       .catch((err) => console.log(err));
-    setIsLoggedIn(false);
-    setIsLoggedOut(true);
+    // setIsLoggedIn(false);
+    // setIsLoggedOut(true);
     setEmail("");
     setPassword("");
     // router.push("/");
@@ -260,7 +230,7 @@ const Login: NextPage = () => {
       <div className="w-full">
         <div className="top w-full h-[764px] bg-[#f2f0ff] flex justify-center flex-col text-center text-[53px] font-bold font-josefin relative">
           <>
-            {!isLoggedIn ? (
+            {!logInMutation.isSuccess || logOutMutation.isSuccess ? ( 
               // 로그인 화면
               <div className="login-wrapper">
                 <div className="title_wrapper">
@@ -324,7 +294,10 @@ const Login: NextPage = () => {
                 <BtnWrap>
                   {loginType === "google" ? (
                     <LogOutBtn
-                      onClick={() => signOut("google")}
+                      onClick={() => {
+                        document.cookie = "x_auth = GoogleCookie; max-age=0";
+                        signOut("google")}
+                      }
                       id="signout_btn"
                     >
                       구글 Logout
