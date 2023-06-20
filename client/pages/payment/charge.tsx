@@ -186,6 +186,8 @@ const Charge: NextPage = () => {
                 }
             }
             window.IMP?.request_pay(paymentData, callback);
+        } else {
+            console.log("데이터 확인 필요")
         }
     }
 

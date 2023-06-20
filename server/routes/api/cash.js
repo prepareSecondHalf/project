@@ -5,27 +5,39 @@ const { UserTmp } = require('../../models/userTmp');
 const router = express.Router();
 
 // 캐시충전내역 저장
-router.post('/cash/charge', (req, res) => {
+router.post('/cash/charge', async (req, res) => {
     const { userid, amount } = req.body;
     console.log("casg ub?")
     if (!userid) {
         return res.status(400).json({ success: false, msg: '로그인 후 이용하실 수 있습니다.' });
     } else {
         console.log("conditional charge is in?")
-        UserTmp.findOne({ userid }).then((user) => {
-            if (user) {
-                user.amount = amount;
-                Charge.create({ userid, amount })
-                return user.save();
-            } else {
-                return res.status(400).json({ success: false, msg: '유저가 존재하지 않습니다.' });
+        const updateQuery = { $set: { amount: amount } };
+        const option = { returnOriginal: false };
+        try {
+            const updateUser = await UserTmp.findOneAndUpdate({ _id: data.userid }, updateQuery, option);
+            console.log(updateUser)
+            const currentDate = new Date("<YYYY-mm-ddTHH:MM:ss>");
+            const chargeHisrtory = new Charge({ userid, amount, currentDate })
+            chargeHisrtory.save().then(res => {
+                return res.json({
+                    success: true,
+                    message: '충전이 완료되었습니다.',
+                })
+            }).catch(err => {
+                return res.json({
+                    success: false,
+                    message: '충전을 실패했습니다.',
+                    errMsg: err
+                })
+            })
+            
+        } catch (err) {
+            if (err) {
+                console.error(err, " : err");
+                return res.json({ success: false, message: err });
             }
-        }).then(savedUser => {
-            res.json({ success: true, user: savedUser });
-        }).catch(err => {
-            console.log(err)
-            res.status(500).json({ success: false, msg: err });
-        });
+        }
     }
 });
 

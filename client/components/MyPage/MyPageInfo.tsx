@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
@@ -19,17 +19,19 @@ const getProfile = async () => {
             setHeaderAuth();
 
             const res = await Apis.get('/user-tmp/myprofile');
-            
+
             return res.user;
         }
     }
 }
 
-let token: string|null = '';
+let token: string | null = '';
 
 const MyPageInfo: NextPage = () => {
+    const [token, setToken] = useState<string>("");
 
-    const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
+    // const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
+    const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], getProfile, {
         cacheTime: 3600,
         staleTime: 3600,
         retry: 1,
@@ -49,14 +51,36 @@ const MyPageInfo: NextPage = () => {
         }
     }
 
+    // useEffect(() => {
+    //     if (localStorage.getItem("token")) setToken(localStorage.getItem("token")!);
+    // }, [token])
+
     useEffect(() => {
-        token = localStorage.getItem("token");
-    }, [])
+        const checkLoginStatus = () => {
+            (typeof window !== 'undefined' && window.localStorage.getItem('token')) ?? setToken("");
+            // if (typeof window !== 'undefined' && window.localStorage.getItem('token')) {
+            //     setToken(localStorage.getItem("token"));
+            // } else {
+            //     setToken("");
+            // }
+        };
+
+        checkLoginStatus(); // Check login status initially
+
+        // Set up event listener for changes in localStorage
+        window.addEventListener('storage', checkLoginStatus);
+
+        // Clean up event listener on component unmount
+        return () => {
+            window.removeEventListener('storage', checkLoginStatus);
+        };
+    }, []);
+
 
     return (
         <>
             {
-                isSuccess && data?(
+                isSuccess && data ? (
                     <>
                         <div className="profile-base">
                             <div className="profile-box">
@@ -71,7 +95,7 @@ const MyPageInfo: NextPage = () => {
                             <div className="user-info grid grid-cols-2 gap-x-16 gap-y-8">
                                 <div>
                                     <span className="field-label">이름</span>
-                                    <input type="text" readOnly value={data.name}/>
+                                    <input type="text" readOnly value={data.name} />
                                 </div>
                                 <div>
                                     <span className="field-label">이메일</span>
@@ -97,7 +121,7 @@ const MyPageInfo: NextPage = () => {
                                     <span className="field-label">Point</span>
                                     <span>{data.point} 포인트 </span>
                                     <button className="w-[100px] bg-basered border-none outline-none rounded-3 text-white font-roboto cursor-pointer hover:bg-hoverred"
-                                        >
+                                    >
                                         <Link href="/payment/charge">충전하기</Link>
                                     </button>
                                 </div>
@@ -157,7 +181,7 @@ const MyPageInfo: NextPage = () => {
                             </MyPageActiveHistory> */}
                         </div>
                     </>
-                ): <></>
+                ) : <></>
             }
         </>
     )
