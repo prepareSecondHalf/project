@@ -40,28 +40,12 @@ const RTCTest = () => {
     // url 파라미터에 있는 room 정보
     const roomName = router.query.props;
 
-    useEffect(() => {
-        // 소켓 연결
-        socketRef.current = io('localhost:3000');
-
-        // peerConnection 생성
-        // iceServers는 stun server 설정으로 google의 public stun server를 사용한다.
-        // 찾아보니 뭐 webRTC 쓰는 예제는 다 이거 쓰더라..
-        pcRef.current = new RTCPeerConnection({
-            iceServers: [
-                {
-                    urls: 'stun:stun.l.google.com:19302',
-                },
-            ],
-        });
-    }, []);
-
     const getMedia = async () => {
         try {
             // 자신의 스트림 정보
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
-                audio: true,
+                audio: false,
             });
 
             if (myVideoRef.current) {
@@ -143,7 +127,9 @@ const RTCTest = () => {
     };
 
     useEffect(() => {
-        socketRef.current = io('localhost:8080');
+        socketRef.current = io('localhost:8080', {
+            path: '/api/video',
+        });
 
         pcRef.current = new RTCPeerConnection({
             iceServers: [
@@ -208,27 +194,21 @@ const RTCTest = () => {
     }, []);
 
     return (
-        <div>
-            <video
-                id="remotevideo"
-                style={{
-                    width: 240,
-                    height: 240,
-                    backgroundColor: 'black',
-                }}
-                ref={myVideoRef}
-                autoPlay
-            />
-            <video
-                id="remotevideo"
-                style={{
-                    width: 240,
-                    height: 240,
-                    backgroundColor: 'black',
-                }}
-                ref={remoteVideoRef}
-                autoPlay
-            />
+        <div className="w-full py-20 px-32 flex justify-center">
+            <div className="w-full flex justify-between gap-4">
+                <video
+                    id="remotevideo"
+                    className="bg-black w-1/2 h-96"
+                    ref={myVideoRef}
+                    autoPlay
+                />
+                <video
+                    id="remotevideo"
+                    className="bg-black w-1/2 h-96"
+                    ref={remoteVideoRef}
+                    autoPlay
+                />
+            </div>
         </div>
     );
 };
