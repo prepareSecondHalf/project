@@ -5,6 +5,16 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment");
 
 const UserSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  name: {
+    type: String,
+    trim: true,
+    required: true,
+  },
   email: {
     type: String,
     trim: true,
@@ -16,23 +26,77 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     minlength: 5,
   },
-  birth: {
-    type: Number,
-    // required: true,
-  },
-  phone_number: {
-    type: Number,
-    // required: true,
-  },
-  token: {
+  nickname: {
     type: String,
+    trim: true,
+    required: true,
   },
-  // token 유효기간
-  tokenExp: {
+  grade: {
+    // type: Enumerator,
     type: Number,
+    trim: true,
+    required: true,
   },
-  role: {
+  point: {
     type: Number,
+    trim: true,
+    required: true,
+  },
+  phone: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  login_way: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  comments: {
+    type: Object,
+    trim: true,
+  },
+  reviews: {
+    type: Object,
+    trim: true,
+  },
+  lang: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  photo: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  register_date: {
+    type: Date,
+    trim: true,
+    required: true,
+  },
+  chat: {
+    type: String, Function,
+    trim: true,
+  },
+  reputation: {
+    // type: Float32Array,
+    type: String,
+    trim: true,
+    required: true,
+  },
+  isSubmit: {
+    type: Boolean,
+    trim: true,
+    required: true,
+  },
+  profile_img: {
+    type: String,
+    trim: true,
+  },
+  note: {
+    type: String,
+    trim: true,
   },
 });
 

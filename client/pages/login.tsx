@@ -233,7 +233,7 @@ const Login: NextPage = () => {
         type: "logout",
         cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
         // document.cookie =
-        //   "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
+        //   "x_auth = "xxxxx"; max-age=0";
       });
     }
   };

@@ -55,7 +55,7 @@ const Header: NextPage = () => {
   const { data } = useQuery({
     queryKey: ["logInMutation", "logOutMutation"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8080/api/user/auth", {
+      const res = await axios.get("http://localhost:8080/user/auth", {
         withCredentials: true,
       });
       return res;
