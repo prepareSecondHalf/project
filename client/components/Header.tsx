@@ -1,13 +1,22 @@
 import { NextPage } from "next";
 import Link from "next/link";
-import { useQuery } from "react-query";
+import { useQuery, QueryClient } from "react-query";
 import { Apis } from "utils/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { error } from "console";
-import { isCommaListExpression } from "typescript";
-import { NoFallbackError } from "next/dist/server/base-server";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
+import styled from "styled-components";
+
+const AccountMenus = styled.div`
+  display: flex;
+  gap: 1.5rem;
+`;
+const BtnWrap = styled.div``;
+const LogOutBtn = styled.button`
+  font-weight: 700;
+`;
 const menus = [
   {
     id: 0,
@@ -36,60 +45,59 @@ const menus = [
   },
 ];
 
-
 const Header: NextPage = () => {
   let [isCookie, setIsCookie] = useState(false);
-  const { data } = useQuery("logInMutation", async () =>  {
-    try {
-      const result = await axios.get("http://localhost:8080/api/user/auth", { withCredentials: true, staleTime: 1000 });
-      return result
-    } catch(err) {
-      throw err;
-    }
-  }); 
+  const [intervalMs, setIntervalMs] = useState(1000);
+  const [loginType, setLoginType] = useState<string>("");
 
-  // let isCookie = false;
-  // if (data) {
-  //   console.log("length>>>>>>>>>", data);
-  //   if (String(data.data.cookies).length > 0) {
-  //     console.log('check@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-  //     // isCookie = true;
-  //   }
-  //   else {
-  //     console.log('check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  //     // isCookie = false;  
-  //   }
-  //   // else setIsCookie(false);
-  //   // console.log()
-  // } 
+  const router = useRouter();
+
+  const { data } = useQuery({
+    queryKey: ["logInMutation", "logOutMutation"],
+    queryFn: async () => {
+      const res = await axios.get("http://localhost:8080/api/user/auth", {
+        withCredentials: true,
+      });
+      return res;
+    },
+    refetchInterval: intervalMs,
+  });
 
   useEffect(() => {
-    if (data) {
-      console.log("length>>>>>>>>>", data, data.data.cookie, String(data.data.cookie).length);
-      if ((data.data.cookie) !== undefined && String(data.data.cookie).length > 0) {
-        console.log('check@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-        setIsCookie(true);
-      }
-      else {
-        console.log('check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', data)
-        setIsCookie(false);
-      }}
+    // console.log(data?.data.cookie);
+    if (data?.data.type === "google") {
+      setLoginType("google");
+    } else {
+      setLoginType("normal");
+    }
+
+    if (data?.data.cookie) {
+      data.data.cookie !== undefined && String(data.data.cookie).length > 0;
+      setIsCookie(true);
+    } else {
+      setIsCookie(false);
+    }
   }, [data]);
 
-  
+  const handleLogOut = (type: string) => {
+    if (type === "google") {
+      // queryClient.setQueryData("logOutMutation", true);
+      console.log("header google logout");
+      queryClient.invalidateQueries("logOutMutation");
+    } else {
+      console.log("header normal logout");
+      queryClient.invalidateQueries("logOutMutation");
 
-  // const logoutQuery = useQuery("logOutMutation", async () => {
-  //   try {
-  //     const result = await axios.get("http://localhost:8080/api/user/auth", { withCredentials: true });
-  //     return result;
-  //   } catch(err) {
-  //     throw err;
-  //     // const logoutCookie = logoutQuery.data.data.cookie ? logoutQuery.data.data.cookie : null;
-  //   }
-  // });
-  // console.log("loginQuery1>>>>>>>", loginQuery);
-  // console.log("logoutQuery2>>>>>>>", logoutQuery, '\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
-
+      // logOutMutation.mutate({
+      //   email: email,
+      //   password: password,
+      //   type: "logout",
+      //   cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
+      // document.cookie =
+      //   "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
+      // });
+    }
+  };
 
   return (
     <div className="w-full h-fit box-border sticky top-[-44px] z-[1] shadow-md">
@@ -102,15 +110,40 @@ const Header: NextPage = () => {
             </div>
             <div className="text-[#f1f1f1] flex font-josefin cursor-pointer">
               {!isCookie ? (
-                <Link className="text-white hover:text-white" href="/login">
-                  로그인
-                </Link>
+                <AccountMenus>
+                  <Link className="text-white hover:text-white" href="/login">
+                    로그인
+                  </Link>
+                  <Link className="text-white hover:text-white" href="/signup">
+                    회원가입
+                  </Link>
+                </AccountMenus>
               ) : (
-                <Link className="text-white hover:text-white" href="/mypage">
-                  마이페이지
-                </Link>
+                // <div className="w-4 h-4 bg-login bg-no-repeat bg-center mt-3">
+                // </div>
+                <AccountMenus>
+                  <Link className="text-white hover:text-white" href="/mypage">
+                    마이페이지
+                  </Link>
+                  <BtnWrap>
+                    {loginType === "google" ? (
+                      <LogOutBtn
+                        onClick={() => handleLogOut("google")}
+                        id="signout_btn"
+                      >
+                        구글 Logout
+                      </LogOutBtn>
+                    ) : (
+                      <LogOutBtn
+                        onClick={() => handleLogOut("normal")}
+                        id="signout_btn"
+                      >
+                        일반 Logout
+                      </LogOutBtn>
+                    )}
+                  </BtnWrap>
+                </AccountMenus>
               )}
-              <div className="w-4 h-4 bg-login bg-no-repeat bg-center mt-3"></div>
             </div>
           </div>
         </div>

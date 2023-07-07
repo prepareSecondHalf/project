@@ -17,19 +17,18 @@ let auth = (req, res, next) => {
   // console.log("[auth]@@@@@@@@@@@", req.body.userInfo.cookie, " : req.cookies");
   // console.log("[auth]@@@@@@@@@@@", req.body.userInfo.cookies, " : req.cookies");
   // console.log("[auth]@@@@@@@@@@@", req.cookies.x_auth, " : req.cookies");
-  
-    if (req.cookies) {
-      console.log("[auth]♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥", req.cookie);
-      console.log("[auth]★★★★★★★★★★★★★★★");
+
+  if (req.cookies) {
+    console.log("[auth]♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥", req.cookie);
+    console.log("[auth]★★★★★★★★★★★★★★★");
 
     // 토큰 복호화 후 유저 찾기
     // => 유저 있으면 인증 완료
     // => 유저 없으면 인증 불가
     User.findByToken(token, (err, user) => {
-      console.log("[auth]$$$$$$$$$$$$$", token, " : token");
-      console.log("[auth]$$$$$$$$$$$$$", user, " : user");
+      // console.log("[auth]$$$$$$$$$$$$$", token, " : token");
+      // console.log("[auth]$$$$$$$$$$$$$", user, " : user");
 
-      
       if (err) throw err;
       if (!user && token !== "GoogleCookie")
         return res.json({ isAuth: false, error: true });

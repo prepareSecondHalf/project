@@ -81,17 +81,19 @@ app.post("/api/user/register", async (req, res) => {
 });
 
 app.post("/api/user/login", async (req, res) => {
-  console.log("[/api/user/login]1 >>>> ", req.body.userInfo);
-
-  if (req.body.userInfo.type  === 'googleLogIn') {
+  if (req.body.userInfo.type === "googleLogIn") {
     req.cookies = "GoogleCookie";
-    console.log("googleLogin check@@@@@@");
+    console.log(
+      "googleLogin check =============>>>>>>",
+      req.body.userInfo.email,
+      req.body.userInfo.password
+    );
     return res.cookie("x_auth", "GoogleCookie").status(200).json({
-          loginSuccess: true,
-          // email: userInfo.email,
-          // password: userInfo.password,
-          cookies: "GoogleCookie",
-        });
+      loginSuccess: true,
+      email: req.body.userInfo.email,
+      password: req.body.userInfo.password,
+      cookies: "GoogleCookie",
+    });
   } else {
     // 요청된 이메일을 DB에서 찾기
     await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
@@ -174,7 +176,8 @@ app.get("/api/user/auth", auth, (req, res) => {
   console.log("[/api/user/auth1]", req.user); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
   console.log("[/api/user/auth2]", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
   // console.log("auth", res.cookies);
-  if (req.cookies.x_auth === "GoogleCookie") return res.status(200).json({cookie: "GoogleCookie"})
+  if (req.cookies.x_auth === "GoogleCookie")
+    return res.status(200).json({ cookie: "GoogleCookie", type: "google" });
   return res.status(200).json({
     _id: req.user._id,
     // isAdmin: req.user.role === 0 ? false : true,
@@ -182,7 +185,8 @@ app.get("/api/user/auth", auth, (req, res) => {
     email: req.user.email,
     birth: req.user.birth,
     phone_number: req.user.phone_number,
-    cookie: req.cookies.x_auth ? req.cookies.x_auth : null ,
+    cookie: req.cookies.x_auth ? req.cookies.x_auth : null,
+    type: "normal",
     // role: req.user.role,
   });
 });
