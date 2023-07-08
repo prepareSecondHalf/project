@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import styled from 'styled-components';
 
 const BackDrop = styled.div`
-  background-color: black;
+  background-color: #e6e6e6;
   width: 100vw;
   height: 100vh;
   position: fixed;
@@ -16,6 +16,10 @@ const Contents = styled.div`
   background-color: white;
   width: 60vw;
   height: 48vh;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 type BannerProps = {

@@ -1,3 +1,4 @@
+// styled components
 import styled from 'styled-components';
 
 export const Banner = styled.div`
@@ -22,14 +23,6 @@ export const ListWrap = styled.div`
   margin-bottom: 4rem;
   cursor: pointer;
 
-  & > div {
-    /* 이미지로 바꿔야 됨 */
-    display: block;
-    width: 20rem;
-    height: 16rem;
-    background-color: rgb(238 239 211);
-  }
-
   section {
     padding: 0.5rem 2rem;
     background-color: rgb(238 239 251);
@@ -40,4 +33,11 @@ export const ListWrap = styled.div`
       font-weight: 500;
     }
   }
+`;
+
+export const ImageWrap = styled.div`
+  display: block;
+  width: 20rem;
+  height: 16rem;
+  background-color: rgb(238 239 211);
 `;
