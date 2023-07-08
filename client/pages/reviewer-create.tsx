@@ -77,7 +77,10 @@ const ReviewerList = () => {
     router.push('http://localhost:3000/reviewerlist');
   };
 
-  if (isLoading) return <div>L O A D I N G . . .</div>;
+  if (isLoading)
+    return (
+      <div className="w-full h-16 rounded border-white outline-none text-lg bg-[#EEEFFB]">L O A D I N G . . .</div>
+    );
 
   if (error) {
     console.log(error);

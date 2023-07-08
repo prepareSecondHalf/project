@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     console.log('check this out!!!: ', req.query.keyword);
-    const keyword = req.query.keyword;
+    const keyword = req.query.keyword || '';
 
     const posts = await Post.find(
       !!keyword
