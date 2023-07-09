@@ -12,7 +12,6 @@ const PostListItem = ({ post }: PostListItemProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const toggleModal = () => setIsModalOpen(!isModalOpen);
   return (
-    // <Link href={`reviewerpost/${post._id}`}>
     <ListWrap onClick={toggleModal}>
       <ImageWrap>IMAGE</ImageWrap>
       <section>

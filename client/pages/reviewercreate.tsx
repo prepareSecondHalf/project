@@ -1,12 +1,15 @@
 /** hooks */
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from 'react-query';
 /** types */
 import { IPost, ICreatePostReq } from 'interface/IFcPost';
 /** utils */
 import { Apis } from 'utils/api';
+/** components */
 import PostBanner from 'components/PostBoard/PostBanner';
+import { Button } from 'components/PostBoard/Mixins';
 
 const generateTempId = (): string => {
   return Math.random().toString();
@@ -130,13 +133,9 @@ const ReviewerList = () => {
                   onKeyUp={onAddLang}
                 />
               </label>
-              <button
-                type="button"
-                className="w-fit h-16 px-12 bg-[#FB2E86] text-[#FFFFFF] text-xl rounded font-josefin"
-                onClick={onAddLang}
-              >
+              <Button type="button" onClick={onAddLang}>
                 add
-              </button>
+              </Button>
               <label htmlFor="pricePerMin" className="w-6/12 relative">
                 <input
                   type="number"
@@ -163,13 +162,12 @@ const ReviewerList = () => {
               })}
             </ul>
 
-            <button
-              type="submit"
-              className="w-fit h-16 px-12 block float-right	bg-[#FB2E86] text-[#FFFFFF] rounded text-xl font-josefin"
-              onClick={onSubmitForm}
-            >
+            <Link href={'reviewerlist'}>
+              <Button type="button">취소하기</Button>
+            </Link>
+            <Button type="submit" onClick={onSubmitForm}>
               등록하기
-            </button>
+            </Button>
           </div>
         </section>
 
@@ -180,13 +178,9 @@ const ReviewerList = () => {
               onClick={stopPropagation}
             >
               {alertMsg}
-              <button
-                className='type="button"
-                className="w-fit h-16 px-12 bg-[#FB2E86] text-[#FFFFFF] text-xl rounded font-josefin"'
-                onClick={closeAlert}
-              >
+              <Button type="button" onClick={closeAlert}>
                 확인
-              </button>
+              </Button>
             </div>
           </div>
         )}

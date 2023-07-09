@@ -11,6 +11,20 @@ export const Banner = styled.div`
 `;
 
 export const Button = styled.button`
+  width: fit-content;
+  height: 4rem;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-family: Josefin Sans;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  display: inline-block;
+  background-color: #fb2e86;
+  color: #ffffff;
+`;
+
+export const RoundedButton = styled.button`
   padding: 1rem 2rem;
   border-radius: 2rem;
   background-color: rgb(238 239 251);

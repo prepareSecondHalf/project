@@ -11,6 +11,7 @@ type ModalProps = {
 };
 /** utils */
 import { Apis } from 'utils/api';
+/** components */
 import Modal from './Modal';
 import { Button } from './Mixins';
 
@@ -52,7 +53,12 @@ const PostItemModal = (props: ModalProps) => {
           </section>
 
           <Button onClick={props.toggleModal}>닫기</Button>
-          <Link href={`reqreview`}>
+          <Link
+            href={{
+              pathname: 'reqreview',
+              query: { pid: `${post?._id}` },
+            }}
+          >
             <Button>리뷰 신청하기</Button>
           </Link>
         </main>

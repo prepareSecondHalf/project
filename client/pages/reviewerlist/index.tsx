@@ -9,7 +9,7 @@ import { Apis } from 'utils/api';
 /** components */
 import PostBanner from 'components/PostBoard/PostBanner';
 import PostListItem from 'components/PostBoard/PostListItem';
-import { Button } from 'components/PostBoard/Mixins';
+import { Button, RoundedButton } from 'components/PostBoard/Mixins';
 
 const getPostsSortedByDate = (data: IPost[], descending: boolean) => {
   const isDescending = descending ? 1 : -1;
@@ -37,7 +37,7 @@ const ReviewerList = () => {
   useEffect(() => {
     const sortedPosts = getPostsSortedByDate(posts, isDescending);
     setPosts(sortedPosts);
-  }, [isDescending]);
+  }, [posts, isDescending]);
 
   if (isLoading)
     return (
@@ -57,8 +57,8 @@ const ReviewerList = () => {
     event.preventDefault();
     refetch();
   };
-  const onClickDescendingSort = () => setIsDescending(true);
-  const onClickAscendingSort = () => setIsDescending(false);
+  const onClickDescendingSort = () => setIsDescending(false);
+  const onClickAscendingSort = () => setIsDescending(true);
 
   return (
     <>
@@ -70,8 +70,8 @@ const ReviewerList = () => {
           <div className="text-[32px] font-bold">Conditions</div>
           <div className="flex">
             <div>
-              <Button onClick={onClickDescendingSort}>최신순</Button>
-              <Button onClick={onClickAscendingSort}>오래된순</Button>
+              <RoundedButton onClick={onClickDescendingSort}>최신순</RoundedButton>
+              <RoundedButton onClick={onClickAscendingSort}>오래된순</RoundedButton>
             </div>
             <form className="flex gap-4" onSubmit={onSubmitKeyword}>
               <label htmlFor="search">
@@ -84,9 +84,9 @@ const ReviewerList = () => {
                   onChange={onChangeKeyword}
                 />
               </label>
-              <Button type="submit">검색</Button>
+              <RoundedButton type="submit">검색</RoundedButton>
             </form>
-            <Link href="/reviewer-create">
+            <Link href="/reviewercreate">
               <Button>등록하기</Button>
             </Link>
           </div>
