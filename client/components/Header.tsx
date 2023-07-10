@@ -53,14 +53,15 @@ const Header: NextPage = () => {
   const router = useRouter();
 
   const { data } = useQuery({
-    queryKey: ["logInMutation", "logOutMutation"],
+    queryKey: ["logInMutation"],
+    // queryKey: ["logInMutation", "logOutMutation"],
     queryFn: async () => {
       const res = await axios.get("http://localhost:8080/user/auth", {
         withCredentials: true,
       });
       return res;
     },
-    refetchInterval: intervalMs,
+    // refetchInterval: intervalMs,
   });
 
   useEffect(() => {

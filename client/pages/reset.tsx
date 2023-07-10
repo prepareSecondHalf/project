@@ -65,7 +65,7 @@ const Reset: NextPage = () => {
   `;
 
   const Button = styled.button`
-    background-color: #2099bb;
+    background-color: rgb(247 33 130 / var(--tw-bg-opacity));
     color: #fff;
     border: #2099bb;
     margin-top: 24px;
