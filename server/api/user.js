@@ -18,6 +18,8 @@ router.post("/register", async (req, res) => {
   `회원가입 시 필요한 정보들을 클라이언트에서 가져와 db에 삽입 feat.bodyParser`;
   console.log("[/register] >>>> ", req.body);
   const user = new User(req.body); // instance 생성
+  // const { name, email, password, phone, nickname } = user;
+
   await user
     .save()
     .then(() => {
@@ -30,7 +32,6 @@ router.post("/register", async (req, res) => {
     });
 });
 // router.post('/register', (req, res) => {
-//   const { name, email, password, phone, nickname } = req.body;
 
 //   if (!name)
 //     return res
@@ -319,38 +320,57 @@ router.delete("/close/:id", async (req, res) => {
 // })
 
 router.post("/email", async (req, res) => {
-  console.log("[/memberout] >>>> ", req.body);
+  console.log("[/email] >>>> ", req.body);
+  console.log("[/email] >>>> ", req.body.email);
 
   // 요청된 이메일을 DB에서 찾기
-  await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/dropMember] >>>> ", userInfo._id);
-    try {
-      User.deleteOne({ _id: userInfo._id });
-    } catch (e) {
-      console.warn(e);
-    }
-    // User.deleteOne({ _id: "64845f48611660a23752792f" });
-    // User.deleteOne({ email: userInfo.email });
-    // User.deleteOne("64845f48611660a23752792f");
+  let result = await User.findOne({ email: req.body.email });
+  if (result === null) {
+    return res.status(200).json({
+      success: true,
+      value: "중복된 이메일이 없습니다",
+    });
+  }
+  return res.status(200).json({
+    success: false,
+    value: "중복값이 존재합니다.",
   });
 });
 
-router.post("/phone", async (req, res) => {
-  console.log("[/memberout] >>>> ", req.body);
+router.post("/nickname", async (req, res) => {
+  console.log("[/nickname] >>>> ", req.body);
+  console.log("[/nickname] >>>> ", req.body.nickname);
 
   // 요청된 이메일을 DB에서 찾기
-  await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/dropMember] >>>> ", userInfo._id);
-    try {
-      User.deleteOne({ _id: userInfo._id });
-    } catch (e) {
-      console.warn(e);
-    }
-    // User.deleteOne({ _id: "64845f48611660a23752792f" });
-    // User.deleteOne({ email: userInfo.email });
-    // User.deleteOne("64845f48611660a23752792f");
+  let result = await User.findOne({ nickname: req.body.nickname });
+  if (result === null) {
+    return res.status(200).json({
+      success: true,
+      value: "중복된 닉네임이 없습니다",
+    });
+  }
+  return res.status(200).json({
+    success: false,
+    value: "중복값이 존재합니다.",
   });
 });
+
+// router.post("/phone", async (req, res) => {
+//   console.log("[/memberout] >>>> ", req.body);
+
+//   // 요청된 이메일을 DB에서 찾기
+//   await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
+//     console.log("[/dropMember] >>>> ", userInfo._id);
+//     try {
+//       User.deleteOne({ _id: userInfo._id });
+//     } catch (e) {
+//       console.warn(e);
+//     }
+//     // User.deleteOne({ _id: "64845f48611660a23752792f" });
+//     // User.deleteOne({ email: userInfo.email });
+//     // User.deleteOne("64845f48611660a23752792f");
+//   });
+// });
 
 router.put("/password", async (req, res) => {
   console.log("[/memberout] >>>> ", req.body);
@@ -370,20 +390,20 @@ router.put("/password", async (req, res) => {
 });
 
 router.get("/search/:searchTerm", async (req, res) => {
-  console.log("[/memberout] >>>> ", req.body);
+  console.log("[searchTerm] 1>>>> ", req.body);
 
   // 요청된 이메일을 DB에서 찾기
-  await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/dropMember] >>>> ", userInfo._id);
-    try {
-      User.deleteOne({ _id: userInfo._id });
-    } catch (e) {
-      console.warn(e);
-    }
-    // User.deleteOne({ _id: "64845f48611660a23752792f" });
-    // User.deleteOne({ email: userInfo.email });
-    // User.deleteOne("64845f48611660a23752792f");
-  });
+  // await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
+  //   console.log("[/find email] >>>> ", userInfo._id);
+  //   try {
+  //     User.deleteOne({ _id: userInfo._id });
+  //   } catch (e) {
+  //     console.warn(e);
+  //   }
+  //   // User.deleteOne({ _id: "64845f48611660a23752792f" });
+  //   // User.deleteOne({ email: userInfo.email });
+  //   // User.deleteOne("64845f48611660a23752792f");
+  // });
 });
 
 router.post("/certifications", async (req, res) => {
