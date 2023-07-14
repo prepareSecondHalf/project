@@ -47,7 +47,7 @@ const menus = [
 
 const Header: NextPage = () => {
   let [isCookie, setIsCookie] = useState(false);
-  const [intervalMs, setIntervalMs] = useState(1000);
+  const [intervalMs, setIntervalMs] = useState(5000);
   const [loginType, setLoginType] = useState<string>("");
 
   const router = useRouter();
@@ -61,11 +61,12 @@ const Header: NextPage = () => {
       });
       return res;
     },
-    // refetchInterval: intervalMs,
+    refetchInterval: intervalMs,
   });
 
   useEffect(() => {
     // console.log(data?.data.cookie);
+    console.log("header ===> ", data);
     if (data?.data.type === "google") {
       setLoginType("google");
     } else {

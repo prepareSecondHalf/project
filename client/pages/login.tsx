@@ -154,7 +154,7 @@ const Login: NextPage = () => {
     const getCookie = document.cookie.slice(7);
 
     if (window && getCookie) {
-      console.log("쿠키 로그인 유지 상태");
+      console.log("쿠키 로그인 유지 상태", getCookie);
       setIsLoggedIn(true);
       setIsLoggedOut(false);
     } else {

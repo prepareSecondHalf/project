@@ -218,6 +218,15 @@ const Login: NextPage = () => {
       //   birth: birth,
       //   phone: phone,
       // });
+    } else {
+      console.log(
+        isEmailCertified,
+        name,
+        isNicknameCertified,
+        isPasswordCertified,
+        isCertified,
+        isClicked
+      );
     }
   };
 
