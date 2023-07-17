@@ -9,34 +9,37 @@ import CashHistory from "components/MyPage/CashChargeHistory";
 const dummyData = [
     {
         key: 0,
-        date: '2023.04.06',
-        chargeProce: 10000,
-        userPrice: 20000,
-        payment: '신용카드',
-        state: '진행중',
-        note: '취소 불가'
+        profile: '이미지 없음',
+        price: '150000',
+        startDate: '2023-04-27',
+        endedDate: '2023-04-29',
+        status: '입금 대기',
+        payment: '-',
+        note: '-',
     },
     {
         key: 1,
-        date: '2023.04.06',
-        chargeProce: 10000,
-        userPrice: 20000,
+        profile: '이미지 없음',
+        price: '450000',
+        startDate: '2023-04-27',
+        endedDate: '2023-05-01',
+        status: '진행중',
         payment: '신용카드',
-        state: '완료',
-        note: '취소 불가'
+        note: '-',
     },
     {
         key: 2,
-        date: '2023.04.06',
-        chargeProce: 10000,
-        userPrice: 20000,
-        payment: '신용카드',
-        state: '결제 전',
-        note: '취소 불가'
+        profile: '이미지 없음',
+        price: '50000',
+        startDate: '2023-04-27',
+        endedDate: '2023-04-28',
+        status: '완료',
+        payment: '캐시',
+        note: '-',
     },
 ]
 
-const CashUsageHistory: NextPage = () => {
+const ReviewerHistory: NextPage = () => {
 
     return (
         <>
@@ -51,7 +54,7 @@ const CashUsageHistory: NextPage = () => {
                                     <th
                                         className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
                                     >
-                                        프로필
+                                        Profile
                                     </th>
                                     <th
                                         className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
@@ -66,12 +69,7 @@ const CashUsageHistory: NextPage = () => {
                                     <th
                                         className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
                                     >
-                                        현재 상황
-                                    </th>
-                                    <th
-                                        className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                                    >
-                                        결제 수단
+                                        진행상황
                                     </th>
                                     <th
                                         className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"
@@ -86,14 +84,14 @@ const CashUsageHistory: NextPage = () => {
                                         <tr key={item.key}>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <div className="flex">
-                                                    {item.date}
+                                                    {item.profile}
                                                 </div>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">{item.chargeProce}</p>
+                                                <p className="text-gray-900 whitespace-no-wrap">{item.price}</p>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <p className="text-gray-900 whitespace-no-wrap">{item.userPrice}</p>
+                                                <p className="text-gray-900 whitespace-no-wrap">{item.startDate}{item.endedDate}</p>
                                             </td>
                                             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                                 <span
@@ -103,13 +101,13 @@ const CashUsageHistory: NextPage = () => {
                                                         aria-hidden
                                                         className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
                                                     ></span>
-                                                    <span className="relative">{item.payment}</span>
+                                                    <span className="relative">{item.status}</span>
                                                 </span>
                                             </td>
                                             <td
                                                 className="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center"
                                             >
-                                                {item.state}
+                                                {item.payment}
                                             </td>
                                             <td
                                                 className="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center"
@@ -128,4 +126,4 @@ const CashUsageHistory: NextPage = () => {
     )
 }
 
-export default CashUsageHistory;
+export default ReviewerHistory;

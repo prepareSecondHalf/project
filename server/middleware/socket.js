@@ -1,52 +1,102 @@
 const SocketIO = require('socket.io');
 
+const { Chat } = require('../models/chat');
+const { ChatRoom } = require('../models/chatRoom');
+const moment = require('moment');
+
 module.exports = (server) => {
-  const io = SocketIO(server, {
-    path: '/routes/api/socketio',
-    cors: { origin: '*', methods: ['GET', 'POST'] },
-  });
-
-  const userList = [];
-
-  io.on('connection', (socket) => {
-    let userId = '';
-
-    const req = socket.request;
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    console.log('new Connection:::', ip, socket.id);
-
-    socket.on('disconnect', () => {
-      socket.leave(userId);
-
-      for (let i in userList) {
-        if (userList[i].name === userId) userList.splice(i, 1);
-      }
-
-      io.emit('getUserList', userList);
+    const io = SocketIO(server, {
+        path: '/api/chat',
+        cors: { origin: '*', methods: ['GET', 'POST'] },
     });
 
-    socket.on('error', (err) => {
-      console.error(err);
+    const userList = [];
+
+    io.on('connection', (socket) => {
+        let userId = '';
+
+        const req = socket.request;
+        const ip =
+            req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+        socket.on('getAllChatRoom', (info) => {
+            ChatRoom.find({ users: info.userId })
+                .populate('chats')
+                .then((rooms) => {
+                    if (!rooms)
+                        io.emit('getAllChatRoom', {
+                            success: false,
+                            msg: 'noRoom',
+                        });
+                    else
+                        io.emit('getAllChatRoom', {
+                            success: true,
+                            rooms: rooms.map((item, idx) => {
+                                return {
+                                    roomId: item.roomId,
+                                    owner: item.owner,
+                                    ownername:
+                                        idx === 0
+                                            ? '김승규'
+                                            : idx === 1
+                                            ? '이정환'
+                                            : '문희수',
+                                    chats: item.chats,
+                                };
+                            }),
+                        });
+                });
+        });
+
+        socket.on('createChat', (info) => {
+            const newChatRoom = new ChatRoom({
+                roomId: info.userId + moment().format('YYYYMMDDhhmmss'),
+                owner: info.userId,
+                users: [info.userId, info.opponentUserId],
+            });
+            newChatRoom.save();
+
+            io.emit('createChat', info);
+        });
+
+        socket.on('enterChat', (info) => {
+            ChatRoom.findOne({ roomId: info.roomId }).then((room) => {
+                if (room) console.log(`${socket.id} Room Connected`);
+                else console.log('Error::: No Chat Room');
+            });
+
+            io.emit('enterChat', info);
+        });
+
+        socket.on('disconnect', () => {
+            socket.leave(userId);
+
+            io.emit('getUserList', userList);
+        });
+
+        socket.on('error', (err) => {
+            console.error(err);
+        });
+
+        socket.on('sendMsg', async (info) => {
+            const newChat = new Chat({
+                roomId: info.roomId,
+                user: info.userId,
+                creator: info.username,
+                message: info.msg,
+            });
+            await newChat.save();
+
+            await ChatRoom.findOneAndUpdate(
+                { roomId: info.roomId },
+                {
+                    $push: {
+                        chats: { _id: newChat._id },
+                    },
+                },
+            );
+
+            io.emit('sendMsg', newChat);
+        });
     });
-
-    socket.on('toMessage', (obj) => {
-      if (obj.toUser) {
-        io.to(obj.toSocketId).emit('fromMessage', obj);
-        io.to(socket.id).emit('fromMessage', obj);
-      } else {
-        io.emit('fromMessage', obj);
-      }
-    });
-
-    socket.on('joinChat', (info) => {
-      userId = info.name;
-      info.socketId = socket.id;
-      userList.push(info);
-
-      socket.join(info.name);
-
-      io.emit('getUserList', userList);
-    });
-  });
 };

@@ -7,7 +7,7 @@ const config = require("../config/index");
 
 const { JWT_SECRET } = config;
 
-console.log("jwt_secret  ===> ", JWT_SECRET);
+// console.log("jwt_secret  ===> ", JWT_SECRET);
 
 const UserSchema = new mongoose.Schema({
   // id: {
@@ -177,14 +177,14 @@ UserSchema.methods.generateToken = function (cb) {
 
 UserSchema.statics.findByToken = function (token, cb) {
   const user = this;
-  console.log("findByToken1 >>>>>>>>", token);
-  console.log("findByToken1 >>>>>>>>", JWT_SECRET);
+  // console.log("findByToken1 >>>>>>>>", token);
+  // console.log("findByToken1 >>>>>>>>", JWT_SECRET);
 
   // 토큰 디코드
   jwt.verify(token, JWT_SECRET, function (err, decoded) {
-    console.log("findByToken2 >>>>>>>>", token);
-    console.log("findByToken3 >>>>>>>>", decoded);
-    console.log("findByToken4 >>>>>>>>");
+    // console.log("findByToken2 >>>>>>>>", token);
+    // console.log("findByToken3 >>>>>>>>", decoded);
+    // console.log("findByToken4 >>>>>>>>", user);
 
     // 유저 아이디를 이용해 유저를 찾은 다음
     // 클라이언트에서 가져온 토큰과 DB에 보관된 토큰이 일치하는지 확인

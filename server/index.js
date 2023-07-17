@@ -56,13 +56,20 @@ mongoose
     console.log(err);
   });
 
-// app.use("/api/user", require("./routes/api/user"));
+app.use("/api/user", require("./routes/api/user"));
+app.use("/api/post", require("./routes/api/post"));
+app.use("/api/user-tmp", require("./routes/api/user-tmp"));
 
 const server = http.createServer(app);
+const chatWebSocket = require("./middleware/socket");
+
+chatWebSocket(server);
+const rtcWebSocket = require("./middleware/rtcSocket");
+rtcWebSocket(server);
 
 const webSocket = require("./middleware/socket");
-const { User } = require("./models/user");
-const userRouter = require("./api/user.js");
+// const userRouter = require("./api/user.js");
+const userRouter = require("./routes/api/user");
 
 app.use("/user", userRouter);
 app.get("/", (req, res) => {

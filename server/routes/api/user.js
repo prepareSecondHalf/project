@@ -1,9 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("../config/index");
-const { auth } = require("../middleware/auth");
-const { User } = require("../models/user");
+const config = require("../../config/index");
+const { auth } = require("../../middleware/auth");
+const { User } = require("../../models/user");
 const { imp_key, imp_secret } = process.env;
 const axios = require("axios");
 
@@ -276,11 +276,13 @@ router.post("/logout", auth, async (req, res) => {
 // backtick 쓰면 에러
 router.get("/auth", auth, (req, res) => {
   // 여기 미들웨어(auth)까지 통과했다는 것은 authentication이 true라는 말
-  console.log("[/auth1]", req.user); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
-  console.log("[/auth2]", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
+  // console.log("[/auth1]", req.user); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
+  // console.log("[/auth2]", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
   // console.log("auth", res.cookies);
-  if (req.cookies.x_auth === "GoogleCookie")
+  if (req.cookies.x_auth === "GoogleCookie") {
     return res.status(200).json({ cookie: "GoogleCookie", type: "google" });
+  }
+  // console.log("[/auth3]", req.cookies); // res에서 확인되어야 하는게 맞는거 아닌가??!?!?!
   return res.status(200).json({
     _id: req.user._id,
     // isAdmin: req.user.role === 0 ? false : true,
@@ -322,21 +324,26 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-router.delete("/close/:id", async (req, res) => {
-  console.log("[/memberout] >>>> ", req.body);
+// router.delete("/close", async (req, res) => {
+router.delete("/close/:email", async (req, res) => {
+  console.log("[/memberout1] >>>> ", req.body);
+  console.log("[/memberout2] >>>> ", req.params);
 
   // 요청된 이메일을 DB에서 찾기
-  await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/dropMember] >>>> ", userInfo._id);
-    try {
-      User.deleteOne({ _id: userInfo._id });
-    } catch (e) {
-      console.warn(e);
+  let result = await User.findOne({ email: req.params.email });
+  console.log("[/dropMember1] >>>> ", result);
+
+  if (result) {
+    console.log("[/dropMember2] >>>> ", result.email);
+    let finalResult = await User.findOneAndDelete({ email: result.email });
+    if (finalResult) {
+      console.log("USER DELETE IS SUCCESS ==> ", result.email);
+      return res.status(200).json({ success: true, data: result.email });
+    } else {
+      console.warn("USER DELETE is on Error", result);
+      return res.status(400).json({ success: false, data: {} });
     }
-    // User.deleteOne({ _id: "64845f48611660a23752792f" });
-    // User.deleteOne({ email: userInfo.email });
-    // User.deleteOne("64845f48611660a23752792f");
-  });
+  }
 });
 
 router.get("/myprofile", authenticateToken, (req, res) => {
@@ -394,7 +401,8 @@ router.put("/password", async (req, res) => {
 
   // 요청된 이메일을 DB에서 찾기
   await User.findOne({ email: req.body.userInfo.email }).then((userInfo) => {
-    console.log("[/dropMember] >>>> ", userInfo._id);
+    console.log("[/dropMember] >>>> ", userInfo);
+    console.log("[/dropMember] >>>> ", userInfo.email);
     try {
       User.deleteOne({ _id: userInfo._id });
     } catch (e) {

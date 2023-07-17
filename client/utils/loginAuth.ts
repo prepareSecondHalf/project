@@ -2,12 +2,9 @@ import { Apis } from "./api";
 
 let jwtAuthToken: string | null = null;
 
-export const setAuthToken = (token: string, email: string) => {
+export const setAuthToken = (token: string) => {
   jwtAuthToken = token;
-  if (typeof window !== undefined) {
-    localStorage.setItem("token", jwtAuthToken);
-    localStorage.setItem("email", email);
-  }
+  if (typeof window !== undefined) localStorage.setItem("token", jwtAuthToken);
 };
 
 export const removeAuthToken = (token: string) => {

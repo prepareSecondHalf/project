@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import { BaseSyntheticEvent, useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { isError, useMutation, useQuery, QueryClient } from "react-query";
+import { isError, useQuery, useMutation } from "react-query";
 
 import { Apis } from "utils/api";
 import { setAuthToken, setHeaderAuth } from "utils/loginAuth";
@@ -102,47 +102,43 @@ const Login: NextPage = () => {
         { userInfo },
         { withCredentials: true }
       );
-      try {
-        console.log(
-          "@@@@@@@@@@@@@@@@@@@@@@@loginMutation success >>>>>>>>>>> ",
-          res
-        );
 
+      console.log("res =========> ", res);
+
+      if (!res.loginSuccess) {
+        console.log("@@@@@@@@@@@@@@@loginMutation fail >>>>>>>>>>> ");
+        alert(
+          "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
+        );
+      } else {
+        console.log("@@@@@@@@@@@@@loginMutation success >>>>>>>>>>> ", res);
         setEmail(res.email);
         setPassword(res.password);
         setIsLoggedIn(true);
         setIsLoggedOut(false);
-      } catch (err) {
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@loginMutation fail >>>>>>>>>>> ");
-        console.warn(err);
-        alert(
-          "아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n입력하신 내용을 다시 확인해주세요."
-        );
+
+        router.push("/");
       }
     }
-    // ,
-    // {
-    //   staleTime: 60000,
-    // }
   );
 
-  const logOutMutation = useMutation("logOutMutation", (userInfo: loginParam) =>
-    Apis.post("/user/logout", { userInfo }, { withCredentials: true })
-      .then((res) => {
-        console.log(
-          "@@@@@@@@@@@@@@@@@@@@@@@logOutMutation success >>>>>>>>>>> ",
-          res
-        );
-        setEmail("");
-        setPassword("");
-        setIsLoggedOut(true);
-        setIsLoggedIn(false);
-      })
-      .catch((err) => {
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@logOutMutation fail >>>>>>>>>>> ");
-        console.warn("로그아웃 실패", err);
-      })
-  );
+  // const logOutMutation = useMutation("logOutMutation", (userInfo: loginParam) =>
+  //   Apis.post("/user/logout", { userInfo }, { withCredentials: true })
+  //     .then((res) => {
+  //       console.log(
+  //         "@@@@@@@@@@@@@@@@@@@@@@@logOutMutation success >>>>>>>>>>> ",
+  //         res
+  //       );
+  //       setEmail("");
+  //       setPassword("");
+  //       setIsLoggedOut(true);
+  //       setIsLoggedIn(false);
+  //     })
+  //     .catch((err) => {
+  //       console.log("@@@@@@@@@@@@@@@@@@@@@@@logOutMutation fail >>>>>>>>>>> ");
+  //       console.warn("로그아웃 실패", err);
+  //     })
+  // );
 
   // console.log("logInMutation>>>", logInMutation);
   // console.log("logOutMutation>>>", logOutMutation);
@@ -165,10 +161,11 @@ const Login: NextPage = () => {
 
   // 구글 로그인 Hooks
   useEffect(() => {
+    console.log("구글 로그인 유지 상태는?? ====>", status, data);
+
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated") {
-      console.log("구글 로그인 유지 상태", status, data);
       let email = data.user?.email;
       if (typeof email === "string") {
         setEmail(email);
@@ -208,57 +205,41 @@ const Login: NextPage = () => {
   };
 
   // 로그아웃 기능
-  const handleLogOut = (type: string) => {
-    console.log(
-      "handleLogOut>>>>>>>",
-      email,
-      password,
-      type,
-      document.cookie.slice(7)
-    );
+  // const handleLogOut = (type: string) => {
+  //   console.log(
+  //     "handleLogOut>>>>>>>",
+  //     email,
+  //     password,
+  //     type,
+  //     document.cookie.slice(7),
+  //     document.cookie
+  //   );
 
-    if (type === "google") {
-      logOutMutation.mutate({
-        email: email,
-        password: password,
-        type: "googleLogout",
-        cookies: undefined,
-      });
-      document.cookie = "x_auth = GoogleCookie; max-age=0";
-      // () => signOut();
-    } else {
-      logOutMutation.mutate({
-        email: email,
-        password: password,
-        type: "logout",
-        cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
-        // document.cookie =
-        //   "x_auth = "xxxxx"; max-age=0";
-      });
-    }
-  };
-
-  // 회원 탈퇴 기능
-  const handleDropMember = () => {
-    console.log("dropMember>>>>>>>");
-    // dropMemberMutation.mutate({ email: email });
-    // (userInfo: loginParam) => Apis.post("/user/dropMember", { userInfo }),
-    Apis.post("/user/dropMember", email)
-      .then((res) => {
-        console.log("dropMember success", res);
-        // router.push("/login");
-      })
-      .catch((err) => console.log(err));
-    setEmail("");
-    setPassword("");
-    // router.push("/");
-  };
+  //   if (type === "google") {
+  //     logOutMutation.mutate({
+  //       email: email,
+  //       password: password,
+  //       type: "googleLogout",
+  //       cookies: undefined,
+  //     });
+  //     document.cookie = "x_auth = GoogleCookie; max-age=0";
+  //     // () => signOut();
+  //   } else {
+  //     logOutMutation.mutate({
+  //       email: email,
+  //       password: password,
+  //       type: "logout",
+  //       cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
+  //     });
+  //     document.cookie = `x_auth = ${document.cookie}; max-age=0;`;
+  //   }
+  // };
 
   return (
     <div className="w-full min-w-[1200px]">
       <div className="w-full">
         <div className="top w-full h-[764px] bg-[#f2f0ff] flex justify-center flex-col text-center text-[53px] font-bold font-josefin relative">
-          {logInMutation.isLoading || logOutMutation.isLoading ? (
+          {logInMutation.isLoading ? (
             <div>LOADING 중입니다🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵🎵...</div>
           ) : (
             <>
@@ -349,13 +330,6 @@ const Login: NextPage = () => {
                         일반 Logout
                       </LogOutBtn>
                     )}
-
-                    <LogOutBtn
-                      onClick={() => handleDropMember()}
-                      id="signout_btn"
-                    >
-                      회원탈퇴
-                    </LogOutBtn>
                   </BtnWrap>
                   <div className="request_user">
                     {/* <LogInBtn onClick={checkLogIn} id="signout_btn">

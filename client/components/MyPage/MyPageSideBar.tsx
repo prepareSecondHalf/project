@@ -12,36 +12,42 @@ const myPageSideMenu = [
     },
     {
         key: '1',
+        title: '내 정보 수정하기',
+        base: '/mypage',
+        href: '/mypage/edit',
+    },
+    {
+        key: '2',
         title: '캐시 충전 내역',
         base: '/mypage',
         href: '/mypage/cash',
     },
     {
-        key: '2',
+        key: '3',
         title: '캐시 사용 내역',
         base: '/mypage',
         href: '/mypage/cash/chargelist',
     },
     {
-        key: '3',
+        key: '4',
         title: '리뷰 신청 내역',
         base: '/mypage',
         href: '/mypage/review/request',
     },
     {
-        key: '4',
+        key: '5',
         title: '리뷰어 활동 내역',
         base: '/mypage',
         href: '/mypage/review/reviewer',
     },
     {
-        key: '5',
+        key: '6',
         title: '위시리스트',
         base: '/mypage',
         href: '/mypage/wish',
     },
     {
-        key: '6',
+        key: '7',
         title: '회원탈퇴',
         base: '/mypage',
         href: '/mypage/withdraw',
@@ -55,12 +61,9 @@ const SideBar: NextPage = () => {
             <MyPageSideBar className='rounded-lg'>
                 {
                     myPageSideMenu.map((item) => (
-                        <div className="menu-item" key={item.key}>
-                            {/* <Link href='/mypage' as={item.href} passHref> */}
-                            <Link href={item.href} passHref>
-                                {item.title}
-                            </Link>
-                        </div>
+                        <Link href={item.href} passHref className="menu-item" key={item.key}>
+                            {item.title}
+                        </Link>
                     ))
                 }
             </MyPageSideBar>

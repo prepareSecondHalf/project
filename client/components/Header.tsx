@@ -1,13 +1,13 @@
+// 'use client';
 import { NextPage } from "next";
 import Link from "next/link";
-import { useQuery, QueryClient } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { Apis } from "utils/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-
 import styled from "styled-components";
+import { signOut } from "next-auth/react";
 
 const AccountMenus = styled.div`
   display: flex;
@@ -17,6 +17,7 @@ const BtnWrap = styled.div``;
 const LogOutBtn = styled.button`
   font-weight: 700;
 `;
+
 const menus = [
   {
     id: 0,
@@ -45,11 +46,21 @@ const menus = [
   },
 ];
 
+interface loginParam {
+  email: string;
+  password: string;
+  type: string;
+  cookies?: string;
+}
+
 const Header: NextPage = () => {
   let [isCookie, setIsCookie] = useState(false);
-  const [intervalMs, setIntervalMs] = useState(5000);
+  const [intervalMs, setIntervalMs] = useState(1000);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [loginType, setLoginType] = useState<string>("");
 
+  // const { status } = useSession();
   const router = useRouter();
 
   const { data } = useQuery({
@@ -64,16 +75,40 @@ const Header: NextPage = () => {
     refetchInterval: intervalMs,
   });
 
+  const logOutMutation = useMutation(
+    "logOutMutation",
+    async (userInfo: loginParam) => {
+      const result = await Apis.post(
+        "/user/logout",
+        { userInfo },
+        { withCredentials: true }
+      );
+
+      if (!result.isAuth) {
+        console.log(
+          "@@@@@@@@@@@@@@@@@@@@@@@logOutMutation success >>>>>>>>>>> ",
+          result
+        );
+        setEmail("");
+        setPassword("");
+        router.push("/");
+      } else {
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@logOutMutation fail >>>>>>>>>>> ");
+        console.warn("로그아웃 실패", result);
+      }
+    }
+  );
+
   useEffect(() => {
     // console.log(data?.data.cookie);
     console.log("header ===> ", data);
-    if (data?.data.type === "google") {
+    if (data?.data?.type === "google") {
       setLoginType("google");
     } else {
       setLoginType("normal");
     }
 
-    if (data?.data.cookie) {
+    if (data?.data?.cookie) {
       data.data.cookie !== undefined && String(data.data.cookie).length > 0;
       setIsCookie(true);
     } else {
@@ -84,20 +119,33 @@ const Header: NextPage = () => {
   const handleLogOut = (type: string) => {
     if (type === "google") {
       // queryClient.setQueryData("logOutMutation", true);
-      console.log("header google logout");
-      queryClient.invalidateQueries("logOutMutation");
-    } else {
-      console.log("header normal logout");
-      queryClient.invalidateQueries("logOutMutation");
+      console.log(
+        "header google logout",
+        email,
+        password,
+        type,
+        document.cookie.slice(7),
+        document.cookie
+      );
 
-      // logOutMutation.mutate({
-      //   email: email,
-      //   password: password,
-      //   type: "logout",
-      //   cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
-      // document.cookie =
-      //   "x_auth = eyJhbGciOiJIUzI1NiJ9.NjQ4ZDZhY2QzZGE5NmQ4MWJkM2M0YmYx.lB3JE3IYCAPNPqcv8Qv216BYani6B1VwWjp99zV3SzU; max-age=0";
-      // });
+      if (type === "google") {
+        logOutMutation.mutate({
+          email: email,
+          password: password,
+          type: "googleLogout",
+          cookies: undefined,
+        });
+        document.cookie = "x_auth = GoogleCookie; max-age=0";
+        // () => signOut();
+      }
+    } else {
+      logOutMutation.mutate({
+        email: email,
+        password: password,
+        type: "logout",
+        cookies: document.cookie.slice(7) ? document.cookie.slice(7) : "",
+      });
+      document.cookie = `x_auth = ${document.cookie}; max-age=0;`;
     }
   };
 
@@ -130,7 +178,10 @@ const Header: NextPage = () => {
                   <BtnWrap>
                     {loginType === "google" ? (
                       <LogOutBtn
-                        onClick={() => handleLogOut("google")}
+                        onClick={() => {
+                          handleLogOut("google");
+                          signOut("google");
+                        }}
                         id="signout_btn"
                       >
                         구글 Logout
