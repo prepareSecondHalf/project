@@ -81,20 +81,25 @@ const Withdraw: NextPage = () => {
     // (userInfo: loginParam) => Apis.post("/user/dropMember", { userInfo }),
     // Apis.delete("http://localhost:8080/user/close", id)
     // Apis.delete(`/user/close`, id)
-    let result = await Apis.delete(`/user/close/${email}`);
-    console.log("handleWithDrawMember2>>>>>>>", result);
+    let confirmMsg = confirm("정말로 REVIEW 탈퇴를 하시겠습니까?");
 
-    console.log("dropMember success1", result, document.cookie);
-    if (result) {
-      console.log("dropMember success2", result, document.cookie);
+    if (confirmMsg) {
+      let result = await Apis.delete(`/user/close/${email}`);
+      console.log("handleWithDrawMember2>>>>>>>", result);
 
-      document.cookie = "x_auth = GoogleCookie; max-age=0";
-      document.cookie = `x_auth = ${document.cookie}; max-age=0;`;
+      console.log("dropMember success1", result, document.cookie);
+      if (result) {
+        console.log("dropMember success2", result, document.cookie);
 
-      console.log("dropMember success3", result, document.cookie);
-      router.push("/");
-    } else {
-      console.log("dropMember fail", result);
+        document.cookie = "x_auth = GoogleCookie; max-age=0";
+        document.cookie = `x_auth = ${document.cookie}; max-age=0;`;
+
+        console.log("dropMember success3", result, document.cookie);
+        alert("안전하게 회원 탈퇴가 이뤄졌습니다.");
+        router.push("/");
+      } else {
+        console.log("dropMember fail", result);
+      }
     }
   };
 
