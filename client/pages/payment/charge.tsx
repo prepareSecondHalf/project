@@ -1,17 +1,24 @@
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
-import { useQueryClient, useMutation } from 'react-query';
-import { IFcMyInfoResponse, IfcMyCashChargeRequest } from 'interface/MyPage/IFcMyPageInfo';
+import { useQuery, useQueryClient, useMutation } from 'react-query';
+import { useRouter } from "next/router";
+
+// IFC
+import { IFcMyInformation, IFcMyInfoResponse, IfcMyCashChargeRequest } from 'interface/MyPage/IFcMyPageInfo';
 import { Iamport, RequestPayParams, RequestPayResponse, PaymentMethodType } from 'interface/IFcPayment';
 import { IFcChargeCash } from 'interface/Cash/cash';
-import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
-import { Apis } from 'utils/api';
-// image
-// import Delete from 'public/delete.svg';
+// Styled
+import { ChargeContainer } from 'styles/myPage/PaymentStyled';
 
 // util
 import { numberReg, numberComma } from 'utils/util';
+import { Apis } from 'utils/api';
+import { setAuthToken, setHeaderAuth, removeAuthToken } from "utils/loginAuth";
+import axios, { AxiosError } from "axios";
+
+// image
+// import Delete from 'public/delete.svg';
 
 
 declare global {
@@ -101,26 +108,47 @@ dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 h-[48px] tex
 
 
 const chargeCashAPi = async (param: IFcChargeCash) => {
-    await Apis.post("/cash/charge", param).then(res => {
-        window.location.href = "/mypage";
-    });
+    try {
+        const res = await Apis.post("/cash/charge", param);
+
+        console.log(res, " : cash res");
+    } catch(err) {
+        console.error('Charge Cash Api Error >>>> ', err);
+    }
+}
+
+const getProfile = async () => {
+    if (typeof window !== undefined) {
+        if (window.localStorage.getItem("token")) {
+            setAuthToken(window.localStorage.getItem("token") as string);
+            setHeaderAuth();
+
+            const res = await Apis.get('/user-tmp/myprofile');
+
+            return res.user;
+        }
+    }
 }
 
 const Charge: NextPage = () => {
-
+    const router = useRouter();
     const chargeMutation = useMutation(chargeCashAPi);
 
-    const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(paymentInitialState);
+    const [paymentInfo, setPaymentInfo] = useState<RequestPayParams>(payment['card']);
     const [tempCach, setTempCash] = useState<number>(0);
     const [chargeCash, setChargeCash] = useState<string>('0');
     const [paymentType, setPaymentType] = useState<string>('card');
-    const qClient = useQueryClient();
-    const data = qClient.getQueryData('getProfile') as IFcMyInfoResponse;
-    const state = qClient.getQueryState('getProfile');
 
-    if (state && state.error) {
-        console.warn(state.error);
-    }
+    const { status, data, isSuccess, error, isError } = useQuery<IFcMyInfoResponse, AxiosError>(['getProfile'], getProfile, {
+        cacheTime: 1800,
+        staleTime: 3600,
+        keepPreviousData: true,
+        retry: 0,
+    });
+
+    // useEffect(() => {
+    //     setPaymentInfo({...paymentInfo});
+    // }, [paymentInfo])
 
     const handlePaymentType = (e: React.MouseEvent<HTMLElement>) => {
         let radioEl = e.currentTarget.childNodes[0] as HTMLInputElement;
@@ -155,22 +183,26 @@ const Charge: NextPage = () => {
         }
     }
 
-    const onChargeCash = () => {
+    const onChargeCash = async () => {
+        const amount: number = Number(numberReg(chargeCash));
+        let today = new Date();   
+        let makeMerchantUid = today.getHours() + today.getMinutes() + today.getSeconds() + today.getMilliseconds();
+        
+        payment[paymentType].merchant_uid = makeMerchantUid.toString();
+        payment[paymentType].amount = amount;
+        try {
+            await setPaymentInfo({...payment[paymentType]});
+            callingIamport();
+        } catch (err) {
+            if (err) console.error(error, " : !@#$!@#$!@#$")
+        }
+    }
+
+    const callingIamport = () => {
         const { IMP } = window;
         if (data && IMP) {
             IMP.init('imp23735785');
-            const amount: number = Number(numberReg(chargeCash));
-            let today = new Date();   
-            let makeMerchantUid = today.getHours() + today.getMinutes() + today.getSeconds() + today.getMilliseconds();
-            
-            payment[paymentType].merchant_uid = makeMerchantUid.toString();
-            payment[paymentType].amount = amount;
-            console.warn(payment[paymentType]);
-            setPaymentInfo({...payment[paymentType]});
-            
-            console.warn(paymentInfo, " : paymentInfo");
-            const paymentData = paymentInfo;
-    
+
             const callback = (res: RequestPayResponse) => {
                 console.warn(res, " : res req")
                 const { success, error_code } = res;
@@ -183,11 +215,10 @@ const Charge: NextPage = () => {
                     chargeMutation.mutate(mutateData);
                 } else {
                     alert("결제 실패 사유 : "+ error_code)
+                    console.warn(paymentInfo, ' : paymentinfo')
                 }
             }
-            window.IMP?.request_pay(paymentData, callback);
-        } else {
-            console.log("데이터 확인 필요")
+            window.IMP?.request_pay(paymentInfo, callback);
         }
     }
 
@@ -208,12 +239,12 @@ const Charge: NextPage = () => {
             <div className="payment-box payment-method">
                 <div className="title font-medium text-[22px]">결제수단</div>
                 <div className="payment-type flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700" onClick={handlePaymentType} data-field-name="card">
-                    <input checked id="card" type="radio" value="" name="payment-type" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 
+                    <input id="card" type="radio" value="1" name="payment-type" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 
                                         focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                     <label htmlFor="card" className="w-full py-4 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">신용카드</label>
                 </div>
                 <div className="payment-type flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700" onClick={handlePaymentType} data-field-name="phone">
-                    <input id="phone" type="radio" value="" name="payment-type" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 
+                    <input id="phone" type="radio" value="2" name="payment-type" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 
                                         focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                     <label htmlFor="phone" className="w-full py-4 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">휴대폰</label>
                 </div>

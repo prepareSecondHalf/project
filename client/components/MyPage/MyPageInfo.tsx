@@ -3,6 +3,7 @@ import { NextPage } from "next";
 import { useQuery } from "react-query";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Image from "next/image";
 
 import { MyPageActiveHistory } from "styles/myPage/myPageStyled";
 import { IFcMyInformation, IFcMyRequestHistory, IFcMyActivityHistory, IFcWishList } from 'interface/MyPage/IFcMyPageInfo';
@@ -25,55 +26,44 @@ const getProfile = async () => {
     }
 }
 
-let token: string | null = '';
-
 const MyPageInfo: NextPage = () => {
+    const router = useRouter();
+
     const [token, setToken] = useState<string>("");
 
-    // const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], () => getProfile(), {
     const { data, isSuccess, error, isError } = useQuery<IFcMyInformation, AxiosError>(['getProfile'], getProfile, {
-        cacheTime: 3600,
+        cacheTime: 1800,
         staleTime: 3600,
+        keepPreviousData: true,
         retry: 1,
     });
 
     if (isError) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.status === 403 && token) {
+        if (axios.isAxiosError(error) && error as Error) {
+            // if (error.response && error.response.status === 403 && token) {
                 alert('시간이 만료되어 로그아웃 되었습니다. 다시 로그인 해주세요.');
                 removeAuthToken(token);
                 if (typeof window !== undefined) window.location.reload();
-            } else {
-                console.error(error, " : Profile get Error!!!");
-            }
+            // } else {
+            //     console.error(error, " : Profile get Error!!!");
+            // }
         } else {
             console.warn(error, " : !!!!")
         }
     }
 
-    // useEffect(() => {
-    //     if (localStorage.getItem("token")) setToken(localStorage.getItem("token")!);
-    // }, [token])
-
     useEffect(() => {
         const checkLoginStatus = () => {
             (typeof window !== 'undefined' && window.localStorage.getItem('token')) ?? setToken("");
-            // if (typeof window !== 'undefined' && window.localStorage.getItem('token')) {
-            //     setToken(localStorage.getItem("token"));
-            // } else {
-            //     setToken("");
-            // }
         };
 
-        checkLoginStatus(); // Check login status initially
+        checkLoginStatus();
 
-        // Set up event listener for changes in localStorage
         window.addEventListener('storage', checkLoginStatus);
 
-        // Clean up event listener on component unmount
-        return () => {
-            window.removeEventListener('storage', checkLoginStatus);
-        };
+        // return () => {
+        //     window.removeEventListener('storage', checkLoginStatus);
+        // };
     }, []);
 
 
@@ -85,7 +75,8 @@ const MyPageInfo: NextPage = () => {
                         <div className="profile-base">
                             <div className="profile-box">
                                 <div className="profile rounded-full">
-                                    <img src={data.photo} alt="Profile Image" />
+                                    {/* <Image src={data.photo} alt="Profile Image" width={120} height={120} /> */}
+                                    <Image src="https://dummyimage.com/600x400/000000/fff.png" alt="Profile Image" width={120} height={120} />
                                 </div>
                                 <p className="user-name">
                                     {data.nickname}
@@ -126,59 +117,6 @@ const MyPageInfo: NextPage = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                        <div className="user-info grid grid-cols-2 gap-x-16 gap-y-8">
-                            {/* <MyPageActiveHistory className="rounded-md">
-                                <p className="category-title">리뷰 신청내역</p>
-                                <div className={'category-list ' + (userRequestReview.length > 0?'':'no-data')}>
-                                    {
-                                        userRequestReview.length > 0 ? userRequestReview.map(item => (
-                                            <p key={item.title} className="category-item">
-                                                <Link href="/mypage">
-                                                    {item.title}
-                                                </Link>
-                                            </p>
-                                        )) : '리뷰 신청 내역이 없습니다.'
-                                    }
-                                </div>
-                            </MyPageActiveHistory>
-                            <MyPageActiveHistory className="rounded-md">
-                                <p className="category-title">리뷰어 활동내역</p>
-                                <div className={'category-list ' + (userActivityHistory.length > 0?'':'no-data')}>
-                                    {
-                                    userActivityHistory.length > 0 ?  userActivityHistory.map(item => (
-                                            <p key={item.title} className="category-item">
-                                                <Link href="/mypage">
-                                                    {item.title}
-                                                </Link>
-                                            </p>
-                                        )) : '리뷰어 활동 내역이 없습니다.'
-                                    }
-                                </div>
-                            </MyPageActiveHistory> */}
-                            {/* <MyPageActiveHistory className="rounded-md">
-                                <p className="category-title">위시리스트</p>
-                                <div className={'category-list ' + (userWishList.length > 0?'':'no-data')}>
-                                    {
-                                        userWishList.length > 0 ? userWishList.map(item => (
-                                            <p key={item.title} className="category-item">
-                                                <Link href="/mypage">
-                                                    {item.title}
-                                                </Link>
-                                            </p>
-                                        )) : '위시리스트가 존재하지 않습니다.'
-                                    }
-                                </div>
-                            </MyPageActiveHistory> */}
-                            {/* <MyPageActiveHistory className="rounded-md">
-                                <p className="category-title" data-category="cookie">
-                                    <span>
-                                        쿠키
-                                    </span>
-                                    
-                                </p>
-                                <div className="category-item" data-category="cookie">{data.point}</div>
-                            </MyPageActiveHistory> */}
                         </div>
                     </>
                 ) : <></>

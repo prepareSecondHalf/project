@@ -48,8 +48,6 @@ const MyPageContent = Styled.div`
     float: left;
 
     & .profile {
-        width: 120px;
-        height: 120px;
         background-color: #E2E2E2;
         margin-bottom: 10px;
         overflow: hidden;
