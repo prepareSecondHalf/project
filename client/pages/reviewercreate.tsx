@@ -1,20 +1,17 @@
 /** hooks */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useQuery, useMutation } from 'react-query';
+/** types */
+import { IPost, ICreatePostReq } from 'interface/IFcPost';
+/** utils */
+import { Apis } from 'utils/api';
+/** components */
+import PostBanner from 'components/PostBoard/PostBanner';
+import { Button } from 'components/PostBoard/Mixins';
 
-/** libs */
-import axios from 'axios';
-
-/** interface */
-interface ICreatePostReq {
-  title: String;
-  contents: String;
-  register_date: Date;
-  lang: String[];
-  per_minute: Number;
-  comments?: Object[];
-  creator: String;
-}
-const generateId = (): string => {
+const generateTempId = (): string => {
   return Math.random().toString();
 };
 
@@ -24,6 +21,26 @@ const ReviewerList = () => {
   const [lang, setLang] = useState('');
   const [langs, setLangs] = useState<String[]>([]);
   const [pricePerMin, setPricePerMin] = useState(0);
+  const [alertMsg, setAlertMsg] = useState('');
+  const [post, setPost] = useState<IPost>();
+  const router = useRouter();
+  // 수정 시에는 기존 데이터 불러오기
+  const { isLoading, error, data } = useQuery('post', () => Apis.get(`/post`));
+  const { mutate } = useMutation('post', () =>
+    Apis.post('/post', {
+      title,
+      contents,
+      register_date: new Date(),
+      lang: langs,
+      per_minute: pricePerMin,
+      creator: 'ksg',
+    })
+  );
+  useEffect(() => {
+    if (!!data && !!data.post) {
+      setPost(data.post);
+    }
+  }, [data]);
 
   const onChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -46,31 +63,41 @@ const ReviewerList = () => {
   const onChangePricePerMin = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPricePerMin(+event.target.value);
   };
-
+  const closeAlert = () => {
+    setAlertMsg('');
+  };
+  const stopPropagation = (event: React.MouseEvent<HTMLDivElement>) => event.stopPropagation();
   const onSubmitForm = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const params: ICreatePostReq = {
-      title,
-      contents,
-      register_date: new Date(),
-      lang: langs,
-      per_minute: pricePerMin,
-      creator: 'ksg',
-    };
-    try {
-      console.log('where is response???');
-      const response = await axios.post('http://localhost:8080/api/post/', params);
-      console.log('this is response', response);
-    } catch (error) {
-      console.log('error occured!!');
-      console.dir(error);
+
+    const isValid = [title, contents].every((item) => !!item) && langs.length > 0;
+    if (!isValid) {
+      setAlertMsg('필수값을 입력하세요');
+      return;
     }
+
+    mutate();
+    router.push('http://localhost:3000/reviewerlist');
   };
+
+  if (isLoading)
+    return (
+      <div className="w-full h-16 rounded border-white outline-none text-lg bg-[#EEEFFB]">L O A D I N G . . .</div>
+    );
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+  if (data) {
+    console.log('i got data', data);
+  }
+
   return (
     <>
-      <section className="w-full px-96 py-20 bg-[#EEEFFB] text-[40px] font-josefin font-bold">
-        <h1>Create a post</h1>
-      </section>
+      <PostBanner>
+        <h1>리뷰를 광고하세요</h1>
+      </PostBanner>
       <main className="w-full h-fit px-96 bg-[#ffffff]">
         <section className="flex justify-between items-center py-20 text-[#8A8FB9]">
           <div className="w-full px-20 py-20 bg-[#EEEFFB]">
@@ -106,13 +133,9 @@ const ReviewerList = () => {
                   onKeyUp={onAddLang}
                 />
               </label>
-              <button
-                type="button"
-                className="w-fit h-16 px-12 bg-[#FB2E86] text-[#FFFFFF] text-xl rounded font-josefin"
-                onClick={onAddLang}
-              >
+              <Button type="button" onClick={onAddLang}>
                 add
-              </button>
+              </Button>
               <label htmlFor="pricePerMin" className="w-6/12 relative">
                 <input
                   type="number"
@@ -131,7 +154,7 @@ const ReviewerList = () => {
                 return (
                   <li
                     className="w-fit h-2/5 flex items-center px-4 bg-[#1BE982] text-[#EEEFFB] text-sm rounded border-white"
-                    key={lang + generateId()}
+                    key={lang + generateTempId()}
                   >
                     {lang}
                   </li>
@@ -139,15 +162,28 @@ const ReviewerList = () => {
               })}
             </ul>
 
-            <button
-              type="submit"
-              className="w-fit h-16 px-12 block float-right	bg-[#FB2E86] text-[#FFFFFF] rounded text-xl font-josefin"
-              onClick={onSubmitForm}
-            >
+            <Link href={'reviewerlist'}>
+              <Button type="button">취소하기</Button>
+            </Link>
+            <Button type="submit" onClick={onSubmitForm}>
               등록하기
-            </button>
+            </Button>
           </div>
         </section>
+
+        {alertMsg && (
+          <div className="fixed top-0 bottom-0 left-0 right-0 bg-slate-400 backdrop-opacity-30" onClick={closeAlert}>
+            <div
+              className="w-96 h-96 bg-slate-100 relative inset-2/4 translate-x-[-50%] translate-y-[-50%]"
+              onClick={stopPropagation}
+            >
+              {alertMsg}
+              <Button type="button" onClick={closeAlert}>
+                확인
+              </Button>
+            </div>
+          </div>
+        )}
       </main>
     </>
   );

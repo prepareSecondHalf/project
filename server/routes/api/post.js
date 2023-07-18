@@ -4,10 +4,25 @@ const { Post } = require('../../models/post');
 const router = express.Router();
 
 // get all posts
-router.get('/', async (_, res) => {
+router.get('/', async (req, res) => {
   try {
-    const posts = await Post.find({});
-    posts.push({ id: 'testing!' });
+    console.log('check this out!!!: ', req.query.keyword);
+    const keyword = req.query.keyword || '';
+
+    const posts = await Post.find(
+      !!keyword
+        ? {
+            $or: [
+              { title: { $regex: keyword } },
+              { contents: { $regex: keyword } },
+              { creator: { $regex: keyword } },
+              { lang: { $regex: keyword } },
+            ],
+          }
+        : {}
+    );
+
+    console.log('result:::', posts);
     return res.status(200).json({ posts });
   } catch (error) {
     console.log('error occured when getting posts');

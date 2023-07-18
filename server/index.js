@@ -6,17 +6,16 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const http = require('http');
-
 const app = express();
 
 app.use(hpp());
 app.use(helmet());
 
 app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
+    cors({
+        origin: true,
+        credentials: true,
+    }),
 );
 
 app.use(morgan('dev'));
@@ -28,25 +27,25 @@ let mongo_url = '';
 let port = '';
 
 if (process.env.NODE_ENV === 'production') {
-  mongo_url = process.env.MONGO_URI;
-  port = process.env.PORT;
+    mongo_url = process.env.MONGO_URI;
+    port = process.env.PORT;
 } else {
-  port = PORT;
-  mongo_url = MONGO_URI;
+    port = PORT;
+    mongo_url = MONGO_URI;
 }
 
 mongoose
-  .set('strictQuery', true)
-  .connect(mongo_url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('mongodb connecting success');
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+    .set('strictQuery', true)
+    .connect(mongo_url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => {
+        console.log('mongodb connecting success');
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 
 app.use('/api/user', require('./routes/api/user'));
 app.use('/api/post', require('./routes/api/post'));
@@ -55,9 +54,11 @@ app.use('/api/cash', require('./routes/api/cash'));
 
 const server = http.createServer(app);
 
-const webSocket = require('./middleware/socket');
-webSocket(server);
+const chatWebSocket = require('./middleware/socket');
+chatWebSocket(server);
+const rtcWebSocket = require('./middleware/rtcSocket');
+rtcWebSocket(server);
 
 server.listen(port, () => {
-  console.log(`Server started on ${PORT} port`);
+    console.log(`Server started on ${PORT} port`);
 });
