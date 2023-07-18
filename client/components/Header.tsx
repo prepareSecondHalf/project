@@ -55,7 +55,7 @@ interface loginParam {
 
 const Header: NextPage = () => {
   let [isCookie, setIsCookie] = useState(false);
-  const [intervalMs, setIntervalMs] = useState(1000);
+  const [intervalMs, setIntervalMs] = useState(5000);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loginType, setLoginType] = useState<string>("");

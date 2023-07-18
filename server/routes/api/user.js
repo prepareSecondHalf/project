@@ -396,6 +396,36 @@ router.post("/nickname", async (req, res) => {
   });
 });
 
+router.post("/search/:type", async (req, res) => {
+  console.log("[/search/:type] >>>> ", req.params.type);
+  console.log("[/search/:type] >>>> ", req.body);
+
+  let searchType = req.params.type;
+
+  if (searchType === "email") {
+    let result = await User.findOne({
+      name: req.body[0],
+      number: req.body[1],
+    });
+    console.log("result", result);
+
+    if (result === null) {
+      return res.status(200).json({
+        success: false,
+        message: "가입된 이메일이 없습니다",
+        value: null,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "요청하신 이메일이 있습니다..",
+      value: result,
+    });
+  }
+
+  // 요청된 이메일을 DB에서 찾기
+});
+
 router.put("/password", async (req, res) => {
   console.log("[/memberout] >>>> ", req.body);
 
