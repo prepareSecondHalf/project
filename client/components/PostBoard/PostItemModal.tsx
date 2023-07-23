@@ -45,10 +45,10 @@ const PostItemModal = (props: ModalProps) => {
         <main className="w-full h-fit bg-[#ffffff]">
           <section className="flex justify-between items-center py-20 text-[#8A8FB9]">
             <div className="w-full bg-[#EEEFFB]">
-              <h2 className="text-[40px] font-bold mb-20">{post?.title}</h2>
-              <div>{post?.creator}</div>
-              <div>{post?.lang}</div>
-              <div>{post?.contents}</div>
+              <h2>타이틀: {post?.title}</h2>
+              <div>작성자: {post?.creator}</div>
+              <div>대상 언어: {post?.lang}</div>
+              <div>소개: {post?.contents}</div>
             </div>
           </section>
 
