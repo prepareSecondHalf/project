@@ -4,15 +4,86 @@ const jwt = require("jsonwebtoken");
 const config = require("../../config/index");
 const { auth } = require("../../middleware/auth");
 const { User } = require("../../models/user");
-const { imp_key, imp_secret } = process.env;
+const { imp_key, imp_secret, transporter_email, transporter_password } =
+  process.env;
 const axios = require("axios");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const fs = require("fs");
 
 // const { UserTmp } = require('../../models/userTmp');
 // const { User } = require("./models/user");
-
 const { JWT_SECRET } = config;
-
 const router = express.Router();
+
+router.get("/reset/forgot-password", async (req, res) => {
+  console.log("check1", __dirname);
+
+  return res.redirect("resetpw");
+  // return res.redirect("http//:localhost:3000/reset/resetpw");
+  // return res.sendFile("http//:localhost:3000" + "/reset/resetpw");
+  // return res.sendFile(__dirname + "/reset/resetpw.tsx");
+  // res.redirect("www.naver.com");
+  // return res.redirect("resetpw");
+  // return res.redirect("www.naver.com");
+  // res.write("<script>alert('success')</script>");
+  // return res.status(200).write("alert('success')");
+  // return res.status(200).json({ key: "key" });
+  // return res.;
+  // return res.redirect("../reset/forgot-password");
+});
+
+router.post("/reset/forgot-password", async (req, res) => {
+  console.log("[/reset/forgot-passowrd] >>>> ", req.body);
+
+  // 이메일 수신자
+  let receiverEmail = req.body.userEmail;
+
+  const emailConfig = {
+    service: "Gmail",
+    auth: {
+      user: transporter_email,
+      pass: transporter_password,
+    },
+  };
+
+  const transporter = nodemailer.createTransport(emailConfig);
+
+  function generateResetToken() {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(20, (err, buffer) => {
+        if (err) reject(err);
+        resolve(buffer.toString("hex"));
+      });
+    });
+  }
+
+  function sendResetEmail(email, token) {
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: transporter_email,
+      to: email,
+      subject: "Password Reset",
+      html: `<p>Click the link below to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    });
+  }
+
+  async function main() {
+    const userEmail = receiverEmail;
+    const resetToken = await generateResetToken();
+    sendResetEmail(userEmail, resetToken);
+  }
+  main().catch(console.error);
+});
 
 // 회원가입 / POST
 router.post("/register", async (req, res) => {

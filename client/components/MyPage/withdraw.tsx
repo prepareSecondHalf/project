@@ -18,13 +18,15 @@ const WithDrawBtnWrap = styled.div`
   margin-top: 1.5rem;
 `;
 const WithDrawBtn = styled.button`
-  width: 70px;
-  height: 57px;
-  border-radius: 3px;
+  width: 120px;
+  height: 37px;
+  border-radius: 13px;
   background: #fb2e86;
   font-size: 12px;
-  color: #000;
+  color: #fff;
   font-weight: bold;
+  border: 1px solid white;
+}
 `;
 const WithdrawTitle = styled.h2`
   line-height: 1;

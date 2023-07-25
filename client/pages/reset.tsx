@@ -84,6 +84,12 @@ const Button = styled.button`
 }
 `;
 
+// interface ResetPage {
+//   onclick: function getUserEmail(params:type) {
+
+//   }
+// }
+
 const Reset: NextPage = () => {
   const [name, setName] = useState<string>("");
   const [number, setNumber] = useState<string>("");
@@ -92,6 +98,25 @@ const Reset: NextPage = () => {
   useEffect(() => {
     if (window && window.IMP) window.IMP.init("imp23735785");
   }, []);
+
+  const maskingEmail = (email: string) => {
+    return email.substring(0, 2) + "***" + email.substring(5, email.length);
+  };
+
+  const getUserPassword = async (e: Event) => {
+    // /reset/email
+    console.log("getUserPassword1  ======> ", userEmail);
+    e.preventDefault();
+
+    // 1. db에 존재하는 계정이 맞는지 먼저 확인 후, 있다면 이메일로 해당 링크 전송 + alert로 이메일 전송 알림
+    // 2. 없다면, alert로 알림
+    location.href = "http://localhost:3000/reset/resetpw";
+
+    const res = await Apis.get(`user/reset/forgot-password`, { userEmail });
+    console.log("getUserPassword2  ======> ", res);
+
+    // console.log("[getUserPassword] ====> ", res);
+  };
 
   const getUserEmail = async (e: Event) => {
     console.log("getUserEmail", name, number);
@@ -181,10 +206,6 @@ const Reset: NextPage = () => {
     }
   };
 
-  const maskingEmail = (email: string) => {
-    return email.substring(0, 2) + "***" + email.substring(5, email.length);
-  };
-
   return (
     <div className="w-full min-w-[1200px]">
       <div className="w-full">
@@ -236,9 +257,10 @@ const Reset: NextPage = () => {
                       name="email"
                       placeholder="ID@example.com"
                       type="text"
+                      onChange={(e) => setUserEmail(e.target.value)}
                     />
                   </div>
-                  <Button onclick={() => submitReset} type="button">
+                  <Button onClick={(e: Event) => getUserPassword(e)}>
                     비밀번호 재설정 메일 보내기
                   </Button>
                 </Form>

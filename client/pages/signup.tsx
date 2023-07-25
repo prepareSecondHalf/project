@@ -323,6 +323,7 @@ const Login: NextPage = () => {
       setIsPasswordCheckCertified(false);
     }
   };
+
   const validateEmail = async () => {
     console.log("validateEmail", email, email.length, "<===");
 
