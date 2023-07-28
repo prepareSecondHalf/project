@@ -112,7 +112,7 @@ const Reset: NextPage = () => {
     // 2. 없다면, alert로 알림
     location.href = "http://localhost:3000/reset/resetpw";
 
-    const res = await Apis.get(`user/reset/forgot-password`, { userEmail });
+    const res = await Apis.post(`user/reset/forgot-password`, { userEmail });
     console.log("getUserPassword2  ======> ", res);
 
     // console.log("[getUserPassword] ====> ", res);

@@ -16,28 +16,30 @@ const fs = require("fs");
 const { JWT_SECRET } = config;
 const router = express.Router();
 
-router.get("/reset/forgot-password", async (req, res) => {
-  console.log("check1", __dirname);
+// router.get("/reset/forgot-password", async (req, res) => {
+//   console.log("check1", __dirname);
 
-  return res.redirect("resetpw");
-  // return res.redirect("http//:localhost:3000/reset/resetpw");
-  // return res.sendFile("http//:localhost:3000" + "/reset/resetpw");
-  // return res.sendFile(__dirname + "/reset/resetpw.tsx");
-  // res.redirect("www.naver.com");
-  // return res.redirect("resetpw");
-  // return res.redirect("www.naver.com");
-  // res.write("<script>alert('success')</script>");
-  // return res.status(200).write("alert('success')");
-  // return res.status(200).json({ key: "key" });
-  // return res.;
-  // return res.redirect("../reset/forgot-password");
-});
+//   res.redirect("resetpw");
+// return res.redirect("http//:localhost:3000/reset/resetpw");
+// return res.sendFile("http//:localhost:3000" + "/reset/resetpw");
+// return res.sendFile(__dirname + "/reset/resetpw.tsx");
+// res.redirect("www.naver.com");
+// return res.redirect("resetpw");
+// return res.redirect("www.naver.com");
+// res.write("<script>alert('success')</script>");
+// return res.status(200).write("alert('success')");
+// return res.status(200).json({ key: "key" });
+// return res.;
+// return res.redirect("../reset/forgot-password");
+// });
 
 router.post("/reset/forgot-password", async (req, res) => {
-  console.log("[/reset/forgot-passowrd] >>>> ", req.body);
-
+  // router.post("/reset/forgot-password/:token", async (req, res) => {
   // 이메일 수신자
   let receiverEmail = req.body.userEmail;
+  console.log("[/reset/forgot-passowrd]1 >>>> ", req.body);
+  console.log("[/reset/forgot-passowrd]2 >>>> ", receiverEmail);
+  console.log("[/reset/forgot-passowrd]3 >>>> ", req.params.token);
 
   const emailConfig = {
     service: "Gmail",
@@ -59,7 +61,7 @@ router.post("/reset/forgot-password", async (req, res) => {
   }
 
   function sendResetEmail(email, token) {
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    const resetLink = `http://localhost:3000/reset/resetpw?${token}`;
 
     const mailOptions = {
       from: transporter_email,
