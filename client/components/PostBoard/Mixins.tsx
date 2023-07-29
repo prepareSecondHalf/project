@@ -55,3 +55,13 @@ export const ImageWrap = styled.div`
   height: 16rem;
   background-color: rgb(238 239 211);
 `;
+
+export const TitleInput = styled.input`
+  width: 100%;
+  height: 4rem;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  border-color: white;
+  outline: none;
+  font-size: 2rem;
+`;
