@@ -1,37 +1,17 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("../../config/index");
 const { auth } = require("../../middleware/auth");
 const { User } = require("../../models/user");
-const { imp_key, imp_secret, transporter_email, transporter_password } =
-  process.env;
-const axios = require("axios");
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-const fs = require("fs");
+const { Auth } = require("../../models/auth");
 
-// const { UserTmp } = require('../../models/userTmp');
-// const { User } = require("./models/user");
-const { JWT_SECRET } = config;
+const axios = require("axios");
+const crypto = require("crypto");
 const router = express.Router();
 
-// router.get("/reset/forgot-password", async (req, res) => {
-//   console.log("check1", __dirname);
-
-//   res.redirect("resetpw");
-// return res.redirect("http//:localhost:3000/reset/resetpw");
-// return res.sendFile("http//:localhost:3000" + "/reset/resetpw");
-// return res.sendFile(__dirname + "/reset/resetpw.tsx");
-// res.redirect("www.naver.com");
-// return res.redirect("resetpw");
-// return res.redirect("www.naver.com");
-// res.write("<script>alert('success')</script>");
-// return res.status(200).write("alert('success')");
-// return res.status(200).json({ key: "key" });
-// return res.;
-// return res.redirect("../reset/forgot-password");
-// });
+const nodemailer = require("nodemailer");
+const config = require("../../config/index");
+const { JWT_SECRET, imp_key, imp_secret, TRANSPORTER_EMAIL, TRANSPORTER_EMAIL_PASSWORD } = config;
 
 router.post("/reset/forgot-password", async (req, res) => {
   // router.post("/reset/forgot-password/:token", async (req, res) => {
@@ -44,8 +24,8 @@ router.post("/reset/forgot-password", async (req, res) => {
   const emailConfig = {
     service: "Gmail",
     auth: {
-      user: transporter_email,
-      pass: transporter_password,
+      user: TRANSPORTER_EMAIL,
+      pass: TRANSPORTER_EMAIL_PASSWORD,
     },
   };
 
@@ -61,20 +41,28 @@ router.post("/reset/forgot-password", async (req, res) => {
   }
 
   function sendResetEmail(email, token) {
+    console.log("Auth444444444-1@@@@@@@@@@@@@@@@@@@@@@@@@@@", email, token);
     const resetLink = `http://localhost:3000/reset/resetpw?${token}`;
-
+    console.log("Auth444444444@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    
     const mailOptions = {
-      from: transporter_email,
+      from: TRANSPORTER_EMAIL,
       to: email,
       subject: "Password Reset",
       html: `<p>Click the link below to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
     };
 
+    // console.log("Auth5555555555@@@@@@@@@@@@@@@@@@@@@@@@@@@", transporter);
+    // console.log("Auth5555555555@@@@@@@@@@@@@@@@@@@@@@@@@@@", transporter.sendMail);
     transporter.sendMail(mailOptions, (error, info) => {
+      // console.log("Auth5556541648@@@@@@@@@@@@@@@@@@@@@@@@@@@", mailOptions);
       if (error) {
+        // console.log("Auth66666666666666666@@@@@@@@@@@@@@@@@@@@@@@@@@@", mailOptions);
         console.error("Error sending email:", error);
+        res.status(400).json({msg: "메일 전송 실패", isSuccess: false})
       } else {
         console.log("Email sent:", info.response);
+        res.status(200).json({msg: "메일 전송 성공", isSuccess: true})
       }
     });
   }
@@ -82,10 +70,37 @@ router.post("/reset/forgot-password", async (req, res) => {
   async function main() {
     const userEmail = receiverEmail;
     const resetToken = await generateResetToken();
+    const auth = new Auth(); // instance 생성
+
+    console.log("Auth1111111@@@@@@@@@@@@@@@@@@@@@@@@@@@", auth);
+    auth.create(resetToken);
+    console.log("Auth222222222@@@@@@@@@@@@@@@@@@@@@@@@@@@", auth);
+    console.log("Auth3333333333@@@@@@@@@@@@@@@@@@@@@@@@@@@", userEmail, resetToken);
     sendResetEmail(userEmail, resetToken);
   }
   main().catch(console.error);
 });
+
+// router.post("auth", async (req, res) => {
+//   const auth = new Auth(req.body); // instance 생성
+//   console.log("[/register1] >>>> ", user);
+
+//   await user
+//     .save()
+//     .then((user) => {
+//       // token 생성을 위해 가장 많이 쓰는 json web token 사용
+//       console.log("[/register2] >>>> ", req.body);
+//       console.log("[/register2] >>>> ", user);
+
+//       res.status(200).json({
+//         success: true,
+//       });
+//     })
+//     .catch((err) => {
+//       res.json({ success: false, err });
+//     });
+
+// })
 
 // 회원가입 / POST
 router.post("/register", async (req, res) => {

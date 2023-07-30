@@ -184,7 +184,7 @@ UserSchema.statics.findByToken = function (token, cb) {
   jwt.verify(token, JWT_SECRET, function (err, decoded) {
     // console.log("findByToken2 >>>>>>>>", token);
     // console.log("findByToken3 >>>>>>>>", decoded);
-    // console.log("findByToken4 >>>>>>>>", user);
+    // console.log("findByToken4 >>>>>>>>", user);2
 
     // 유저 아이디를 이용해 유저를 찾은 다음
     // 클라이언트에서 가져온 토큰과 DB에 보관된 토큰이 일치하는지 확인

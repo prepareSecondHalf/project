@@ -9,4 +9,6 @@ module.exports = {
   MONGO_URI: process.env.MONGO_URI,
   PORT: process.env.PORT,
   JWT_SECRET: process.env.JWT_SECRET,
+  TRANSPORTER_EMAIL: process.env.TRANSPORTER_EMAIL,
+  TRANSPORTER_EMAIL_PASSWORD: process.env.TRANSPORTER_EMAIL_PASSWORD,
 };

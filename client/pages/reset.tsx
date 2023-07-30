@@ -105,16 +105,15 @@ const Reset: NextPage = () => {
 
   const getUserPassword = async (e: Event) => {
     // /reset/email
-    console.log("getUserPassword1  ======> ", userEmail);
     e.preventDefault();
+    console.log("getUserPassword1  ======> ", userEmail);
+    const res = await Apis.post(`user/reset/forgot-password`, { userEmail });
+    console.log("getUserPassword2  ======> ", res);
+    alert(res.msg);
 
     // 1. db에 존재하는 계정이 맞는지 먼저 확인 후, 있다면 이메일로 해당 링크 전송 + alert로 이메일 전송 알림
     // 2. 없다면, alert로 알림
-    location.href = "http://localhost:3000/reset/resetpw";
-
-    const res = await Apis.post(`user/reset/forgot-password`, { userEmail });
-    console.log("getUserPassword2  ======> ", res);
-
+    // location.href = "http://localhost:3000/reset/resetpw";
     // console.log("[getUserPassword] ====> ", res);
   };
 
