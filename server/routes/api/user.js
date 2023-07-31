@@ -11,7 +11,15 @@ const router = express.Router();
 
 const nodemailer = require("nodemailer");
 const config = require("../../config/index");
-const { JWT_SECRET, imp_key, imp_secret, TRANSPORTER_EMAIL, TRANSPORTER_EMAIL_PASSWORD } = config;
+const {
+  JWT_SECRET,
+  imp_key,
+  imp_secret,
+  TRANSPORTER_EMAIL,
+  TRANSPORTER_EMAIL_PASSWORD,
+} = config;
+
+let resetAuth = null; // 리셋 토큰 변수
 
 router.post("/reset/forgot-password", async (req, res) => {
   // router.post("/reset/forgot-password/:token", async (req, res) => {
@@ -44,7 +52,7 @@ router.post("/reset/forgot-password", async (req, res) => {
     console.log("Auth444444444-1@@@@@@@@@@@@@@@@@@@@@@@@@@@", email, token);
     const resetLink = `http://localhost:3000/reset/resetpw?${token}`;
     console.log("Auth444444444@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-    
+
     const mailOptions = {
       from: TRANSPORTER_EMAIL,
       to: email,
@@ -59,10 +67,10 @@ router.post("/reset/forgot-password", async (req, res) => {
       if (error) {
         // console.log("Auth66666666666666666@@@@@@@@@@@@@@@@@@@@@@@@@@@", mailOptions);
         console.error("Error sending email:", error);
-        res.status(400).json({msg: "메일 전송 실패", isSuccess: false})
+        res.status(400).json({ msg: "메일 전송 실패", isSuccess: false });
       } else {
         console.log("Email sent:", info.response);
-        res.status(200).json({msg: "메일 전송 성공", isSuccess: true})
+        res.status(200).json({ msg: "메일 전송 성공", isSuccess: true });
       }
     });
   }
@@ -70,15 +78,25 @@ router.post("/reset/forgot-password", async (req, res) => {
   async function main() {
     const userEmail = receiverEmail;
     const resetToken = await generateResetToken();
-    const auth = new Auth(); // instance 생성
+    resetAuth = new Auth(); // instance 생성
 
-    console.log("Auth1111111@@@@@@@@@@@@@@@@@@@@@@@@@@@", auth);
-    auth.create(resetToken);
-    console.log("Auth222222222@@@@@@@@@@@@@@@@@@@@@@@@@@@", auth);
-    console.log("Auth3333333333@@@@@@@@@@@@@@@@@@@@@@@@@@@", userEmail, resetToken);
+    console.log("resetAuth111111111 ============================> ", resetAuth);
+    resetAuth.create(resetToken);
     sendResetEmail(userEmail, resetToken);
   }
   main().catch(console.error);
+});
+
+router.post("/reset/auth", async (req, res) => {
+  console.log("/reset/auth1  ===>  ", req.body.urlToken);
+  console.log(
+    "resetAuth222222222222222 ============================> ",
+    resetAuth
+  );
+
+  // if (req.body.urlToken === resetAuth.token)
+  return res.status(200).json({ msg: "토큰 전송 성공", isSuccess: true });
+  return res.status(400).json({ msg: "토큰 전송 실패", isSuccess: false });
 });
 
 // router.post("auth", async (req, res) => {
